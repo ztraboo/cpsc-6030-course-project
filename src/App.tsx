@@ -4,28 +4,29 @@ import './App.css';
 
 // Import all of the D3JS library
 import * as d3 from "d3";
-import dataMerged from './data/merged_output.csv';
 
 function App() {
 
-  const [mergedData, setMergedData] = useState([]);
+  const [mergedData, setMergedData] = useState<d3.DSVRowArray<string>>();
   const [isLoading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       // Read in the merged dataset.
       await Promise.all([
-        d3.csv(dataMerged)
-      ]).then((fetchedData) => {
+        d3.csv(window.location.pathname + "/data/merged_output.csv")
+      ]).then((fetchedData: any[]) => {
+        console.log(fetchedData[0]);
         // Set the state for merged data.
         setMergedData(fetchedData[0]);
+        // setMergedData(fetchedData);
       });
 
       setLoading(false);
     };
 
     // Todo: Not sure why this is called twice but it's fine because mergedData eventually gets set.
-    if (isLoading && mergedData.length === 0) {
+    if (isLoading && (mergedData === undefined)) {
       fetchData();
     }
   }, []);
@@ -69,7 +70,9 @@ function App() {
                   <div className="grid">
                     <div className="card card-participants-container stat-card">
                       <h2>Total Particpants</h2>
-                      <span className="stat">{mergedData.length}</span>
+                      <span className="stat">
+                        {mergedData !== undefined ? mergedData.length : 0}
+                      </span>
                     </div>
                   </div>
                 </main>
