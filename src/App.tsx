@@ -3,7 +3,7 @@
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/fromEntries
 // https://www.geeksforgeeks.org/how-to-skip-over-an-element-in-map/
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import logo from './logo.svg';
 import './App.css';
 
@@ -11,11 +11,21 @@ import './App.css';
 import * as d3 from "d3";
 
 // Import chart components to render in dashboard
+import DonutChartGender from "./components/charts/DonutChartGender";
 import ScatterplotChartWaistCircumferenceVsBMI from "./components/charts/ScatterplotChartWaistCircumferenceVsBMI";
+
+interface Participant {
+  name: string;
+  value: number;
+  percentage: number;
+}
 
 function App() {
 
   const [mergedData, setMergedData] = useState<d3.DSVRowArray<string>>();
+  const [
+    donutChartDataGender, setDonutChartDataGender
+  ] = useState([] as Participant[]);
   const [
     scatterplotChartDataWaistCircumferenceVsBMI, setScatterplotChartDataWaistCircumferenceVsBMI
   ] = useState([]);
@@ -32,13 +42,52 @@ function App() {
         // Add calculated fields
         data = data
         .map((d: any) => {
-          d["calcFieldGender"] = (d["RIAGENDR"] == "1" ? "Male" : "Female");
+          d["calcFieldGender"] = (d["RIAGENDR"] === "1" ? "Male" : "Female");
           return d;
         })
         // console.log(data);
 
         // Set the state for merged data.
         setMergedData(data);
+
+        // Get donut `Gender` data.
+        // Reference: https://www.geeksforgeeks.org/count-distinct-elements-in-an-array/
+        let uniqueGenders = new Set();
+        let uniqueParticipantsFemale = new Set();
+        let uniqueParticipantsMale = new Set();
+        data
+        .map((participant: any) => {
+          return Object.fromEntries(
+            [ 
+              [ "name", uniqueGenders.add(participant["calcFieldGender"]) ],
+              [ "value", 
+                (participant["calcFieldGender"] === "Male") ? 
+                  uniqueParticipantsMale.add(participant["SEQN"]) : 
+                  uniqueParticipantsFemale.add(participant["SEQN"])
+              ]
+            ]
+          ) 
+        });
+
+        let donutData: Participant[] = [];
+        uniqueGenders.forEach((gender) => {
+          donutData.push(
+            {
+              name: gender as string,
+              value: 
+                (gender === "Male") ? 
+                uniqueParticipantsMale.size :
+                uniqueParticipantsFemale.size,
+              percentage:
+                (gender === "Male") ? 
+                (uniqueParticipantsMale.size / (uniqueParticipantsMale.size + uniqueParticipantsFemale.size)) * 100 :
+                (uniqueParticipantsFemale.size / (uniqueParticipantsMale.size + uniqueParticipantsFemale.size)) * 100,
+            }
+          );
+        });
+
+        setDonutChartDataGender(donutData);
+        
               
         // Get scatterplot `Waist Circumference (cm) vs. BMI` data.
         setScatterplotChartDataWaistCircumferenceVsBMI(
@@ -105,21 +154,38 @@ function App() {
                 </header>
                 <main className="main">
                   <div className="grid">
+
+                    {/* Total Metrics - Participants */}
                     <div className="card card-participants-container stat-card">
                       <h2>Total Particpants</h2>
                       <span className="stat">
                         {mergedData !== undefined ? mergedData.length : 0}
                       </span>
                     </div>
+
+                    {/* Donut Chart - Gender */}
+                    {donutChartDataGender !== undefined && (
+                        <div className="card donut-chart-container donut-chart-gender">
+                            <h2 className="App-chart-title">Physical Exercise Engagement Among Individuals</h2>
+                            <DonutChartGender
+                              width={600}
+                              height={300}
+                              data={donutChartDataGender}
+                            />
+                        </div>
+                    )}
+
+                    {/* Scatterplot Chart - Waist Circumference vs. BMI */}
                     {scatterplotChartDataWaistCircumferenceVsBMI !== undefined && (
                         <div className="card scatterplot-chart-container scatterplot-chart-waist-cirumference-vs-bmi">
-                        <h2 className="App-chart-title">Waist Circumference vs. BMI</h2>
-                        <ScatterplotChartWaistCircumferenceVsBMI
-                          height={800}
-                          data={scatterplotChartDataWaistCircumferenceVsBMI}
-                        />
-                    </div>
+                            <h2 className="App-chart-title">Waist Circumference vs. BMI</h2>
+                            <ScatterplotChartWaistCircumferenceVsBMI
+                              height={800}
+                              data={scatterplotChartDataWaistCircumferenceVsBMI}
+                            />
+                        </div>
                     )}
+
                   </div>
                 </main>
               </div>

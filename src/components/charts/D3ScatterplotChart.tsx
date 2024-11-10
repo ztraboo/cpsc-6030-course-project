@@ -14,7 +14,6 @@ import { AxisLeft } from "../axis/AxisLeft";
 import { InteractionData, Tooltip } from "../marks/Tooltip";
 import { Swatches } from "../legend/Swatches";
 
-// const oneMillion = 1_000_000;
 const MARGIN: {
         top: number,
         right: number,
