@@ -12,6 +12,8 @@ export type InteractionData = {
   yAxisLabel: string;
   xAxisValue: number;
   yAxisValue: number;
+  showXAxis?: boolean;
+  showYAxis?: boolean;
 };
 
 type TooltipProps = {
@@ -40,15 +42,15 @@ export const Tooltip = ({ interactionData }: TooltipProps) => {
 
       <div className={styles.topHalfContainer} style={topHalfStyle}>
       <div className={styles.row}>
-          <span>{markColorFieldLegendName}</span>
+          <span className={styles.name}>{markColorFieldLegendName}</span>
           <b>{markColorField}</b>
         </div>
         <div className={styles.row}>
-          <span>{xAxisLabel}</span>
+          <span className={styles.name}>{xAxisLabel}</span>
           <b>{xAxisValue}</b>
         </div>
         <div className={styles.row}>
-          <span>{yAxisLabel}</span>
+          <span className={styles.name}>{yAxisLabel}</span>
           <b>{yAxisValue}</b>
         </div>
       </div>

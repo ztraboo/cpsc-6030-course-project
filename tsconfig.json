@@ -1,5 +1,14 @@
 {
   "compilerOptions": {
+    "baseUrl": ".",
+    // Change this paths keys
+    "paths": {
+      "@src/*": ["src/*"],
+      // Just as an example of what you can
+      "@services/*": ["src/services/*"],
+      // Or even cooler
+      "@/*": ["src/*"]
+    },
     "target": "es5",
     "lib": [
       "dom",
@@ -20,6 +29,7 @@
     "noEmit": true,
     "jsx": "react-jsx"
   },
+  "exclude": ["node_modules"],
   "include": [
     "src"
   ]

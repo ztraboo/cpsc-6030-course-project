@@ -12,6 +12,7 @@ import * as d3 from "d3";
 
 // Import chart components to render in dashboard
 import DonutChartGender from "./components/charts/DonutChartGender";
+import ScatterplotChartBloodMeasuresVsBMI from "./components/charts/ScatterplotChartBloodMeasuresVsBMI";
 import ScatterplotChartWaistCircumferenceVsBMI from "./components/charts/ScatterplotChartWaistCircumferenceVsBMI";
 
 interface Participant {
@@ -26,6 +27,9 @@ function App() {
   const [
     donutChartDataGender, setDonutChartDataGender
   ] = useState([] as Participant[]);
+  const [
+    scatterplotChartDataBloodMeasuresVsBMI, setScatterplotChartDataBloodMeasuresVsBMI
+  ] = useState([]);
   const [
     scatterplotChartDataWaistCircumferenceVsBMI, setScatterplotChartDataWaistCircumferenceVsBMI
   ] = useState([]);
@@ -50,6 +54,7 @@ function App() {
         // Set the state for merged data.
         setMergedData(data);
 
+        // ---------------------------------------------------------------------------
         // Get donut `Gender` data.
         // Reference: https://www.geeksforgeeks.org/count-distinct-elements-in-an-array/
         let uniqueGenders = new Set();
@@ -90,23 +95,44 @@ function App() {
 
         setDonutChartDataGender(donutData);
         
+        // ---------------------------------------------------------------------------
+        // Get scatterplot `Blood Measures vs. BMI` data.
+        setScatterplotChartDataBloodMeasuresVsBMI(
+            data
+            .filter((participant: any) => 
+              isNaN(parseFloat(participant["Bmxbmi"])) === false || 
+              isNaN(parseFloat(participant["Insulin"])) === false ||
+              isNaN(parseFloat(participant["Lbxglt(Glucose after 2 hr)"])) === false ||
+              isNaN(parseFloat(participant["Lbxglu(Glucose fasting)"])) === false ||
+              isNaN(parseFloat(participant["Diabetes Diagnosis Status"])) === false
+            )
+            .map((participant: any) => {            
+              return Object.fromEntries(
+                [ 
+                  [ "bodyMassIndex", parseFloat(participant["Bmxbmi"]) ],
+                  [ "insulin", parseFloat(participant["Insulin"]) ],
+                  [ "glucoseAfter2Hour", parseFloat(participant["Lbxglt(Glucose after 2 hr)"]) ],
+                  [ "glucoseFasting", parseFloat(participant["Lbxglu(Glucose fasting)"]) ],
+                  [ "markColorField", participant["Diabetes Diagnosis Status"] ] 
+                ]
+              ) 
+            })
+        );
               
+        // ---------------------------------------------------------------------------
         // Get scatterplot `Waist Circumference (cm) vs. BMI` data.
         setScatterplotChartDataWaistCircumferenceVsBMI(
             data
             .filter((participant: any) => 
               isNaN(parseFloat(participant["Waist Circumference (cm)"])) === false &&
               isNaN(parseFloat(participant["Bmxbmi"])) === false
-              // isNaN(parseFloat(participant["BMXBMI"])) === false
             )
             .map((participant: any) => {            
               return Object.fromEntries(
                 [ 
                   [ "waistCircumference", parseFloat(participant["Waist Circumference (cm)"])],
                   [ "bodyMassIndex", parseFloat(participant["Bmxbmi"]) ],
-                  // [ "bodyMassIndex", parseFloat(participant["BMXBMI"]) ],
-                  [ "markColorField", participant["Gender"] ] 
-                  // [ "markColorField", participant["calcFieldGender"] ] 
+                  [ "markColorField", participant["Gender"] ]  
                 ]
               ) 
             })
@@ -174,8 +200,19 @@ function App() {
                             <h2 className="App-chart-title">Physical Exercise Engagement Among Individuals</h2>
                             <DonutChartGender
                               width={600}
-                              height={300}
+                              height={250}
                               data={donutChartDataGender}
+                            />
+                        </div>
+                    )}
+
+                    {/* Scatterplot Chart - Blood Measures vs. BMI */}
+                    {scatterplotChartDataBloodMeasuresVsBMI !== undefined && (
+                        <div className="card scatterplot-chart-container scatterplot-chart-blood-measures-vs-bmi">
+                            <h2 className="App-chart-title">Blood Measures vs. BMI</h2>
+                            <ScatterplotChartBloodMeasuresVsBMI
+                              height={250}
+                              data={scatterplotChartDataBloodMeasuresVsBMI}
                             />
                         </div>
                     )}
@@ -185,7 +222,7 @@ function App() {
                         <div className="card scatterplot-chart-container scatterplot-chart-waist-cirumference-vs-bmi">
                             <h2 className="App-chart-title">Waist Circumference vs. BMI</h2>
                             <ScatterplotChartWaistCircumferenceVsBMI
-                              height={800}
+                              height={400}
                               data={scatterplotChartDataWaistCircumferenceVsBMI}
                             />
                         </div>

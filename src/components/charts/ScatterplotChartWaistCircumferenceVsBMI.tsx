@@ -31,8 +31,12 @@ const ScatterplotChartWaistCircumferenceVsBMI = ({ height, data }: ScatterplotCh
             height={height}
             data={scatterplotChartData}
             markColorScale={colorScaleGender}
+            markColorFieldLegendName="Gender"
             xAxisLabel="Waist Circumference (cm)"
             yAxisLabel="Body Mass Index (BMI)"
+            xAxisTicks={20}
+            yAxisTicks={10}
+            legendAlign="left"
         />
         </>
     );

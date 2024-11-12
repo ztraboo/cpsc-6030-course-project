@@ -121,7 +121,7 @@ h2 {
 .stat-card {
   align-items: center;
   justify-content: center;
-  height: 384px;
+  height: 335px;
 }
 
 .card .stat {
@@ -155,7 +155,7 @@ h2 {
   }
 
   .card-participants-container {
-    grid-column: span 8 / span 8;
+    grid-column: span 5 / span 5;
   }
 
   .donut-chart-container {
@@ -163,7 +163,7 @@ h2 {
   }
 
   .donut-chart-gender {
-    grid-column: span 7 / span 7;
+    grid-column: span 10 / span 10;
   }
 
   .map-container {
