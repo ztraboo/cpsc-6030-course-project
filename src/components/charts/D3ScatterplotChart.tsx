@@ -14,7 +14,7 @@ import { AxisLeft } from "../axis/AxisLeft";
 import { InteractionData, Tooltip } from "../marks/Tooltip";
 import { Swatches } from "../legend/Swatches";
 
-const MARGIN: {
+let MARGIN: {
         top: number,
         right: number,
         bottom: number,
@@ -33,12 +33,23 @@ type D3ScatterplotChartProps = {
         y: number;
         markColorField: string;
     }[];
+    markColorFieldLegendName: string,
     markColorScale: d3.ScaleOrdinal<any, any>;
     xAxisLabel: string;
     yAxisLabel: string;
+    xAxisTicks?: number;
+    yAxisTicks?: number;
+    showXAxis?: boolean;
+    showYAxis?: boolean;
+    legendAlign?: string;
+    showLegend?: boolean;
 };
 
-const D3ScatterplotChart = ({ height, data, markColorScale, xAxisLabel, yAxisLabel }: D3ScatterplotChartProps) => {
+const D3ScatterplotChart = ({ height, data, markColorFieldLegendName, markColorScale, xAxisLabel, yAxisLabel, xAxisTicks=30, yAxisTicks=30, showXAxis=true, showYAxis=true, legendAlign="right", showLegend=true }: D3ScatterplotChartProps) => {
+
+    // Remove the margin spacing when the axis labels are missing to save on space.
+    MARGIN.left = (showYAxis === false) ? 0 : 70;
+    MARGIN.bottom = (showXAxis === false) ? 0 : 80;
 
     const [hovered, setHovered] = useState<InteractionData | null>(null);
     const [hoveredGroup, setHoveredGroup] = useState<string | null>(null);
@@ -64,8 +75,8 @@ const D3ScatterplotChart = ({ height, data, markColorScale, xAxisLabel, yAxisLab
     const xScale = d3
     .scaleLinear()
     .domain([
-        d3.min(data, (d) => d.x) as number,
-        d3.max(data, (d) => d.x) as number
+        (d3.min(data, (d) => d.x) as number) - 1,
+        (d3.max(data, (d) => d.x) as number) + 5
     ]) // data points for x
     .range([0, boundsWidth]); // axis x dimensions
 
@@ -74,7 +85,7 @@ const D3ScatterplotChart = ({ height, data, markColorScale, xAxisLabel, yAxisLab
     // Create the vertical scale and its axis generator.
     const yScale = d3
     .scaleLinear()
-    .domain([0, d3.max(data, (d) => d.y) as number]) // data points for y
+    .domain([0, (d3.max(data, (d) => d.y) as number) + 5]) // data points for y
     .nice()
     .range([boundsHeight, 0]); // axis y dimensions
 
@@ -105,7 +116,7 @@ const D3ScatterplotChart = ({ height, data, markColorScale, xAxisLabel, yAxisLab
                 xPos: xScale(d.x),
                 yPos: yScale(d.y),
                 markColorScale: markColorScale,
-                markColorFieldLegendName: "Gender",
+                markColorFieldLegendName: markColorFieldLegendName,
                 markColorField: d.markColorField,
                 xAxisLabel: xAxisLabel,
                 xAxisValue: d.x,
@@ -124,6 +135,11 @@ const D3ScatterplotChart = ({ height, data, markColorScale, xAxisLabel, yAxisLab
     const handleSwatchSelect = (label: string) => {
         (hoveredGroup === null) ? setHoveredGroup(label) : setHoveredGroup(null);
     };
+
+    const legendOffsetX = (legendAlign === "right" ? boundsWidth - 140 : 0 );
+
+    const xAxisPixelsPerTick = boundsWidth / xAxisTicks;
+    const yAxisPixelsPerTick = boundsHeight / yAxisTicks;
 
     return(
         <div
@@ -152,9 +168,11 @@ const D3ScatterplotChart = ({ height, data, markColorScale, xAxisLabel, yAxisLab
                     <StripGenerator width={boundsWidth} height={boundsHeight} />
 
                     {/* legend */}
-                    <g className="legend" overflow={"visible"} transform={`translate(-10, 0)`}>
-                        <Swatches markColorScale={markColorScale} onSelect={handleSwatchSelect} />
-                    </g>
+                    {showLegend && (
+                        <svg className="legend" overflow={"visible"}>
+                            <Swatches markColorScale={markColorScale} onSelect={handleSwatchSelect} legendOffsetX={legendOffsetX} />
+                        </svg>
+                    )}
 
                     {/* dots */}
                     <g className="dots" overflow={"visible"}>
@@ -162,33 +180,52 @@ const D3ScatterplotChart = ({ height, data, markColorScale, xAxisLabel, yAxisLab
                     </g>
 
                     {/* Y axis */}
-                    <AxisLeft yScale={yScale} pixelsPerTick={30} />
+                    {showYAxis && (
+                        <>
+                        {/* Axis line and markers. Use an additional translation to appear at the left */}
+                        <AxisLeft yScale={yScale} pixelsPerTick={yAxisPixelsPerTick} />
 
-                    {/* Text label for Y axis. */}
-                    <g transform={`translate(0, ${boundsHeight / 2})`}>
-                        <text 
-                            y={-50}
-                            style={{textAnchor: "middle", fontWeight: "normal"}}
-                            transform={"rotate(-90)"}
-                        >
-                            {yAxisLabel}
-                        </text>
-                    </g>
+                        {/* Text label for Y axis. */}
+                        <g transform={`translate(0, ${boundsHeight / 2})`}>
+                            <text 
+                                y={-50}
+                                style={{textAnchor: "middle", fontWeight: "normal"}}
+                                transform={"rotate(-90)"}
+                            >
+                                {yAxisLabel}
+                            </text>
+                        </g>
+                        </>
+                    )}
 
-                    {/* X axis, use an additional translation to appear at the bottom */}
-                    <g transform={`translate(0, ${boundsHeight})`}>
-                        <AxisBottom xScale={xScale} pixelsPerTick={60} />
-                    </g>
+                    {/* X axis */}
+                    {showXAxis && (
+                        <>
+                        {/* Axis line and markers. Use an additional translation to appear at the bottom */}
+                        <g transform={`translate(0, ${boundsHeight})`}>
+                            <AxisBottom xScale={xScale} pixelsPerTick={xAxisPixelsPerTick} />
+                        </g>
 
-                    {/* Text label for X axis. */}
-                    <g transform={`translate(0, ${boundsHeight + 60})`}>
-                        <text 
-                            x={boundsWidth / 2}
-                            style={{textAnchor: "middle", fontWeight: "normal"}}
-                        >
-                            {xAxisLabel}
-                        </text>
-                    </g>
+                        {/* Text label for X axis. */}
+                        <g transform={`translate(0, ${boundsHeight + 60})`}>
+                            <text 
+                                x={boundsWidth / 2}
+                                style={{textAnchor: "middle", fontWeight: "normal"}}
+                            >
+                                {xAxisLabel}
+                            </text>
+                        </g>
+                        </>
+                    )}
+
+                    {/* X axis - Add separator line, except after the last plot (*/}
+                    {!showXAxis && (
+                        <>
+                        <svg>
+                            <line x1={0} x2={boundsWidth} y1={boundsHeight} y2={boundsHeight} stroke={"gray"} strokeWidth={1} strokeDasharray={"4, 4"} />
+                        </svg>
+                        </>
+                    )}
                 </g>
             </svg>
 
