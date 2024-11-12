@@ -41,10 +41,10 @@ function App() {
 
         // Add calculated fields
         data = data
-        .map((d: any) => {
-          d["calcFieldGender"] = (d["RIAGENDR"] === "1" ? "Male" : "Female");
-          return d;
-        })
+        // .map((d: any) => {
+        //   d["calcFieldGender"] = (d["RIAGENDR"] === "1" ? "Male" : "Female");
+        //   return d;
+        // })
         // console.log(data);
 
         // Set the state for merged data.
@@ -59,11 +59,13 @@ function App() {
         .map((participant: any) => {
           return Object.fromEntries(
             [ 
-              [ "name", uniqueGenders.add(participant["calcFieldGender"]) ],
+              // [ "name", uniqueGenders.add(participant["calcFieldGender"]) ],
+              [ "name", uniqueGenders.add(participant["Gender"]) ],
               [ "value", 
-                (participant["calcFieldGender"] === "Male") ? 
-                  uniqueParticipantsMale.add(participant["SEQN"]) : 
-                  uniqueParticipantsFemale.add(participant["SEQN"])
+                // (participant["calcFieldGender"] === "Male") ? 
+                (participant["Gender"] === "Male") ? 
+                  uniqueParticipantsMale.add(participant["Seqn"]) : 
+                  uniqueParticipantsFemale.add(participant["Seqn"])
               ]
             ]
           ) 
@@ -94,14 +96,17 @@ function App() {
             data
             .filter((participant: any) => 
               isNaN(parseFloat(participant["Waist Circumference (cm)"])) === false &&
-              isNaN(parseFloat(participant["BMXBMI"])) === false
+              isNaN(parseFloat(participant["Bmxbmi"])) === false
+              // isNaN(parseFloat(participant["BMXBMI"])) === false
             )
             .map((participant: any) => {            
               return Object.fromEntries(
                 [ 
                   [ "waistCircumference", parseFloat(participant["Waist Circumference (cm)"])],
-                  [ "bodyMassIndex", parseFloat(participant["BMXBMI"]) ],
-                  [ "markColorField", participant["calcFieldGender"] ] 
+                  [ "bodyMassIndex", parseFloat(participant["Bmxbmi"]) ],
+                  // [ "bodyMassIndex", parseFloat(participant["BMXBMI"]) ],
+                  [ "markColorField", participant["Gender"] ] 
+                  // [ "markColorField", participant["calcFieldGender"] ] 
                 ]
               ) 
             })
