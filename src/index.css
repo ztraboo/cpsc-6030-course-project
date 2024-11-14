@@ -146,6 +146,14 @@ h2 {
     max-width: 100rem; /* 80rem */
   }
 
+  .bar-chart-container {
+    grid-column: span 15 / span 15;
+  }
+
+  .bar-chart-age-vs-exercise-level {
+    grid-column: span 15 / span 15;
+  }
+
   .container {
     overflow: visible;
   }

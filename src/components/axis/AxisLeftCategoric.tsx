@@ -1,32 +1,30 @@
-import { useMemo } from "react";
-import { ScaleLinear } from "d3";
+// @ts-nocheck
+import { useMemo, useState } from 'react';
+import { ScaleBand } from 'd3';
 
 type AxisLeftProps = {
-  yScale: ScaleLinear<number, number>;
-  pixelsPerTick: number;
+  yScale: ScaleBand<string>;
 };
 
 // tick length
 const TICK_LENGTH = 6;
 
-export const AxisLeft = ({ yScale, pixelsPerTick }: AxisLeftProps) => {
-  const range = yScale.range();
+export const AxisLeft = ({ yScale }: AxisLeftProps) => {
+  const [min, max] = yScale.range();
 
   const ticks = useMemo(() => {
-    const height = range[0] - range[1];
-    const numberOfTicksTarget = Math.floor(height / pixelsPerTick);
-
-    return yScale.ticks(numberOfTicksTarget).map((value) => ({
+    return yScale.domain().map((value: any) => ({
       value,
-      yOffset: yScale(value),
+      yOffset: yScale(value) + yScale.bandwidth() / 2,
     }));
   }, [yScale]);
 
+  // d={["M", range[0], 0, "L", range[1], 0].join(" ")}
   return (
     <>
       {/* Main vertical line */}
       <path
-        d={["M", 0, range[0], "L", 0, range[1]].join(" ")}
+        d={['M', 0, min, 'L', 0, max].join(' ')}
         fill="none"
         stroke="currentColor"
       />
@@ -38,9 +36,10 @@ export const AxisLeft = ({ yScale, pixelsPerTick }: AxisLeftProps) => {
           <text
             key={value}
             style={{
-              fontSize: "12px",
-              textAnchor: "middle",
-              transform: "translateX(-20px)",
+              fontSize: '12px',
+              textAnchor: 'end',
+              alignmentBaseline: 'middle',
+              transform: 'translateX(-10px)'
             }}
           >
             {value}
