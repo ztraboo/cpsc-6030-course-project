@@ -1,24 +1,21 @@
+// @ts-nocheck
 import { useMemo } from "react";
-import { ScaleLinear } from "d3";
+import { ScaleBand } from "d3";
 
 type AxisBottomProps = {
-  xScale: ScaleLinear<number, number>;
-  pixelsPerTick: number;
+  xScale: ScaleBand<string>;
 };
 
 // tick length
 const TICK_LENGTH = 6;
 
-export const AxisBottom = ({ xScale, pixelsPerTick }: AxisBottomProps) => {
-  const range = xScale.range();
+export const AxisBottom = ({ xScale }: AxisBottomProps) => {
+  const [min, max] = xScale.range();
 
   const ticks = useMemo(() => {
-    const width = range[1] - range[0];
-    const numberOfTicksTarget = Math.floor(width / pixelsPerTick);
-
-    return xScale.ticks(numberOfTicksTarget).map((value) => ({
+    return xScale.domain().map((value) => ({
       value,
-      xOffset: xScale(value),
+      xOffset: xScale(value) + xScale.bandwidth() / 2,
     }));
   }, [xScale]);
 
@@ -26,7 +23,7 @@ export const AxisBottom = ({ xScale, pixelsPerTick }: AxisBottomProps) => {
     <>
       {/* Main horizontal line */}
       <path
-        d={["M", range[0], 0, "L", range[1], 0].join(" ")}
+        d={["M", min + 20, 0, "L", max - 20, 0].join(" ")}
         fill="none"
         stroke="currentColor"
       />

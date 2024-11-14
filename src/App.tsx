@@ -14,6 +14,13 @@ import * as d3 from "d3";
 import DonutChartGender from "./components/charts/DonutChartGender";
 import ScatterplotChartBloodMeasuresVsBMI from "./components/charts/ScatterplotChartBloodMeasuresVsBMI";
 import ScatterplotChartWaistCircumferenceVsBMI from "./components/charts/ScatterplotChartWaistCircumferenceVsBMI";
+import StackedBarChartAgeVsExercise from "./components/charts/StackedBarChartAgeVsExercise";
+
+// interface DataItemAgeVsExercise {
+//   Age: number;
+//   No: number;
+//   Vigorous: number;
+// }
 
 interface Participant {
   name: string;
@@ -24,6 +31,9 @@ interface Participant {
 function App() {
 
   const [mergedData, setMergedData] = useState<d3.DSVRowArray<string>>();
+  const [
+    barChartDataAgeVsExerciseLevel, setBarChartDataAgeVsExerciseLevel
+  ] = useState([] as any[]); // as DataItemAgeVsExercise[]);
   const [
     donutChartDataGender, setDonutChartDataGender
   ] = useState([] as Participant[]);
@@ -53,6 +63,68 @@ function App() {
 
         // Set the state for merged data.
         setMergedData(data);
+
+        // ---------------------------------------------------------------------------
+        // Get bar chart `Age vs. Vigorous Exercise` data.
+        // Prepare data: Group by Age and Exercise Level
+        // const dataBar: Array<object> = 
+        // const dataBarAgeVsExercise: Array<DataItemAgeVsExercise> = data.map((element:any) => {
+        //     element.age = +element['Age'];
+        //     element.exercise = element['Paq605 ( Vigorous Exercise)'];
+        // });
+        const dataBarAgeVsExercise: Array<any> = data
+        .map((participant: any) => {            
+          return Object.fromEntries(
+            [ 
+              [ "age", parseFloat(participant["Age"]) ],
+              [ "exercise", participant["Paq605 ( Vigorous Exercise)"] ],
+            ]
+          ) 
+        })
+
+        // console.log(dataBarAgeVsExercise);
+
+        // Function to categorize age into groups
+        function getAgeGroup(age: number) {
+            if (age <= 17) return "≤17";
+            if (age >= 18 && age <= 34) return "18-34";
+            if (age >= 35 && age <= 59) return "35-59";
+            if (age >= 60) return "60 and older";
+        }
+        
+        // Aggregate data by age and exercise level
+        const ageGroupExerciseCounts = d3.rollup(
+          dataBarAgeVsExercise,
+            (v) => v.length, // Count participants
+            (d) => getAgeGroup(d.age), // Group by Age Group
+            (d) => d.exercise // Group by Exercise Level
+        );
+
+        // console.log(ageGroupExerciseCounts);
+
+        // Convert the data into an array of objects for easy stacking
+        const formattedData = Array.from(ageGroupExerciseCounts, ([ageGroup, exerciseMap]) => {
+            const entry = { AgeGroup: ageGroup, No: 0, Vigorous: 0 };
+            exerciseMap.forEach((count, exercise) => {
+                if (exercise === "No") entry.No = count;
+                else if (exercise === "Vigorous") entry.Vigorous = count;
+            });
+            return entry;
+        });
+        // console.log(formattedData);
+
+        setBarChartDataAgeVsExerciseLevel(
+          formattedData
+          .map((entry: any) => {            
+            return Object.fromEntries(
+              [ 
+                [ "ageGroup", entry["AgeGroup"] ],
+                [ "groupExerciseLevelNo", entry["No"] ],
+                [ "groupExerciseLevelVigorous", entry["Vigorous"] ]
+              ]
+            ) 
+          })
+        );
 
         // ---------------------------------------------------------------------------
         // Get donut `Gender` data.
@@ -188,7 +260,7 @@ function App() {
 
                     {/* Total Metrics - Participants */}
                     <div className="card card-participants-container stat-card">
-                      <h2>Total Particpants</h2>
+                      <h2>Total Participants</h2>
                       <span className="stat">
                         {mergedData !== undefined ? mergedData.length : 0}
                       </span>
@@ -202,6 +274,17 @@ function App() {
                               width={600}
                               height={250}
                               data={donutChartDataGender}
+                            />
+                        </div>
+                    )}
+
+                    {/* Stack Bar Chart - Age vs. Exercise Level */}
+                    {barChartDataAgeVsExerciseLevel && (
+                        <div className="card bar-chart-container bar-chart-age-vs-exercise-level">
+                            <h2 className="App-chart-title">Physical Workout vs. Age</h2>
+                            <StackedBarChartAgeVsExercise
+                              height={400}
+                              data={barChartDataAgeVsExerciseLevel}
                             />
                         </div>
                     )}

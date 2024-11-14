@@ -3,11 +3,11 @@ import styles from "./tooltip.module.css"
 
 // Information needed to build the tooltip
 export type InteractionData = {
-  xPos: number;
-  yPos: number;
+  xPos?: number;
+  yPos?: number;
   markColorScale: d3.ScaleOrdinal<any, any>;
   markColorFieldLegendName: string;
-  markColorField: string;
+  markColorField?: string;
   xAxisLabel: string;
   yAxisLabel: string;
   xAxisValue: number;
