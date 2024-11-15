@@ -116,7 +116,7 @@ const D3DonutChart = ({ width, height, data, showPercentages, markColorScale }: 
         <div
             ref={refParent}
             style={{
-                height, 
+                height: "100%", 
                 position: "relative"
             }}
             className="container"
