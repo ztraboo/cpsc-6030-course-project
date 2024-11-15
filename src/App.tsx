@@ -234,9 +234,7 @@ function App() {
         )}
         {!isLoading && (
           <>
-            <div className="dashboard">
-              <div className="wrapper">
-                <header className="App-header">
+            <header className="App-header">
                   <h1>
                     <span className="thin">Lifestyle Habit</span> &nbsp;
                     <span className="bold">Health Indicators</span>
@@ -255,63 +253,71 @@ function App() {
                     </p>
                   </div>
                 </header>
+            <div className="dashboard">
+              <div className="wrapper">
                 <main className="main">
                   <div className="grid">
 
-                    {/* Total Metrics - Participants */}
-                    <div className="card card-participants-container stat-card">
-                      <h2>Total Participants</h2>
-                      <span className="stat">
-                        {mergedData !== undefined ? mergedData.length : 0}
-                      </span>
+                    <div className="left-pane">
+                      {/* Scatterplot Chart - Blood Measures vs. BMI */}
+                      {scatterplotChartDataBloodMeasuresVsBMI !== undefined && (
+                          <div className="card scatterplot-chart-container">
+                              <h2 className="App-chart-title">Blood Measures vs. BMI</h2>
+                              <ScatterplotChartBloodMeasuresVsBMI
+                                height={260}
+                                data={scatterplotChartDataBloodMeasuresVsBMI}
+                              />
+                          </div>
+                      )}
                     </div>
+                    
+                    <div className="right-pane">
 
-                    {/* Donut Chart - Gender */}
-                    {donutChartDataGender !== undefined && (
+                      {/* Total Metrics - Participants */}
+                      <div className="card card-participants-container stat-card">
+                        <h2>Total Participants</h2>
+                        <span className="stat">
+                          {mergedData !== undefined ? mergedData.length : 0}
+                        </span>
+                      </div>
+
+                      {/* Donut Chart - Gender */}
+                      {donutChartDataGender !== undefined && (
                         <div className="card donut-chart-container donut-chart-gender">
                             <h2 className="App-chart-title">Physical Exercise Engagement Among Individuals</h2>
                             <DonutChartGender
-                              width={600}
-                              height={250}
+                              width={570}
+                              height={278}
                               data={donutChartDataGender}
                             />
                         </div>
-                    )}
+                      )}
 
-                    {/* Stack Bar Chart - Age vs. Exercise Level */}
-                    {barChartDataAgeVsExerciseLevel && (
-                        <div className="card bar-chart-container bar-chart-age-vs-exercise-level">
-                            <h2 className="App-chart-title">Physical Workout vs. Age</h2>
-                            <StackedBarChartAgeVsExercise
-                              height={400}
-                              data={barChartDataAgeVsExerciseLevel}
-                            />
-                        </div>
-                    )}
-
-                    {/* Scatterplot Chart - Blood Measures vs. BMI */}
-                    {scatterplotChartDataBloodMeasuresVsBMI !== undefined && (
-                        <div className="card scatterplot-chart-container scatterplot-chart-blood-measures-vs-bmi">
-                            <h2 className="App-chart-title">Blood Measures vs. BMI</h2>
-                            <ScatterplotChartBloodMeasuresVsBMI
-                              height={250}
-                              data={scatterplotChartDataBloodMeasuresVsBMI}
-                            />
-                        </div>
-                    )}
+                      {/* Stack Bar Chart - Age vs. Exercise Level */}
+                      {barChartDataAgeVsExerciseLevel && (
+                          <div className="card bar-chart-container bar-chart-age-vs-exercise-level">
+                              <h2 className="App-chart-title">Physical Workout vs. Age</h2>
+                              <StackedBarChartAgeVsExercise
+                                height={328}
+                                data={barChartDataAgeVsExerciseLevel}
+                              />
+                          </div>
+                      )}
+                    </div>
 
                     {/* Scatterplot Chart - Waist Circumference vs. BMI */}
                     {scatterplotChartDataWaistCircumferenceVsBMI !== undefined && (
                         <div className="card scatterplot-chart-container scatterplot-chart-waist-cirumference-vs-bmi">
                             <h2 className="App-chart-title">Waist Circumference vs. BMI</h2>
                             <ScatterplotChartWaistCircumferenceVsBMI
-                              height={400}
+                              height={300}
                               data={scatterplotChartDataWaistCircumferenceVsBMI}
                             />
                         </div>
                     )}
 
                   </div>
+                  
                 </main>
               </div>
             </div>
