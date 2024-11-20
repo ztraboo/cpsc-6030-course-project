@@ -14,6 +14,7 @@ type D3DonutChartProps = {
   data: DataItem[];
   showPercentages: boolean;
   markColorScale: d3.ScaleOrdinal<any, any>;
+  onClickPieSlice: Function;
 };
 
 const MARGIN_X = 150;
@@ -21,7 +22,10 @@ const MARGIN_Y = 50;
 const INFLEXION_PADDING = 20; // space between donut and label inflexion point
 
 
-const D3DonutChart = ({ width, height, data, showPercentages, markColorScale }: D3DonutChartProps) => {
+const D3DonutChart = ({ width, height, data, showPercentages, markColorScale, onClickPieSlice }: D3DonutChartProps) => {
+    const [participantCount, setParticipantCount] = useState(0);
+    const [toggledSlice, setToggledSlice] = useState(false);
+    
     const ref = useRef<SVGGElement>(null);
     const refParent = useRef<HTMLDivElement>(null); // Todo: Need to revisit this on responsive sizing.
 
@@ -69,14 +73,57 @@ const D3DonutChart = ({ width, height, data, showPercentages, markColorScale }: 
             key={i}
             className={styles.slice}
             onMouseEnter={() => {
-            if (ref.current) {
-                ref.current.classList.add(styles.hasHighlight);
-            }
+                // if (ref.current) {
+                //     ref.current.classList.add(styles.hasHighlight);
+                // }
             }}
             onMouseLeave={() => {
-            if (ref.current) {
-                ref.current.classList.remove(styles.hasHighlight);
-            }
+                // if (ref.current) {
+                //     ref.current.classList.remove(styles.hasHighlight);
+                // }
+            }}
+            onClick={(s) => {
+                console.log("toggledSlice = " + toggledSlice);
+                setToggledSlice(!toggledSlice);
+
+                if (toggledSlice) {
+                    
+                    // Change the number for participants based on the slice selection.
+                    onClickPieSlice(grp.data.value);
+                    d3.select(".card-participants-container .stat").attr("style", "color: " + markColorScale(grp.data.name));
+
+                    // Desaturate and turn down opacity of all slices using '.hasHighlight .slice' class.
+                    if (ref.current) {
+                        ref.current.classList.add(styles.hasHighlight);
+                    }
+
+                    // Remove all existing inline styling for all slices previously selected.
+                    document.querySelectorAll('[class^="donut-chart_slice"]').forEach((slice) => {
+                        slice.removeAttribute("style");
+                    });
+                    
+                    // Add an inline styling for current selected slice.
+                    d3.select(s.currentTarget)
+                    .attr("style", "filter: saturate(100%); opacity: 1;");
+                } else {
+                    
+                    // Change the number for participants for the whole donut chart values.
+                    let totalParticipantCount = 0;
+                    data.forEach((slice) => {
+                        totalParticipantCount += slice.value
+                    })
+                    onClickPieSlice(totalParticipantCount);
+                    d3.select(".card-participants-container .stat").attr("style", null);
+
+                    // Saturate and enable full opacity of all slices by removing '.hasHighlight .slice' class.
+                    if (ref.current) {
+                        ref.current.classList.remove(styles.hasHighlight);
+                    }
+
+                    // Remove inline style for current selected slice.
+                    d3.select(s.currentTarget)
+                    .attr("style", null);
+                }
             }}
         >
             {slicePath && (

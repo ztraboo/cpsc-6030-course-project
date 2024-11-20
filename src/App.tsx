@@ -30,6 +30,8 @@ interface Participant {
 
 function App() {
 
+  const [participantCount, setParticipantCount] = useState(0);
+
   const [mergedData, setMergedData] = useState<d3.DSVRowArray<string>>();
   const [
     barChartDataAgeVsExerciseLevel, setBarChartDataAgeVsExerciseLevel
@@ -54,7 +56,7 @@ function App() {
         let data = fetchedData[0];
 
         // Add calculated fields
-        data = data
+        // data = data
         // .map((d: any) => {
         //   d["calcFieldGender"] = (d["RIAGENDR"] === "1" ? "Male" : "Female");
         //   return d;
@@ -63,6 +65,10 @@ function App() {
 
         // Set the state for merged data.
         setMergedData(data);
+
+        // ---------------------------------------------------------------------------
+        // Participant Count
+        setParticipantCount(data !== undefined ? data.length : 0);
 
         // ---------------------------------------------------------------------------
         // Get bar chart `Age vs. Vigorous Exercise` data.
@@ -275,20 +281,21 @@ function App() {
 
                       {/* Total Metrics - Participants */}
                       <div className="card card-participants-container stat-card">
-                        <h2>Total Participants</h2>
+                        <h2>Participants</h2>
                         <span className="stat">
-                          {mergedData !== undefined ? mergedData.length : 0}
+                          {participantCount}
                         </span>
                       </div>
 
                       {/* Donut Chart - Gender */}
                       {donutChartDataGender !== undefined && (
                         <div className="card donut-chart-container donut-chart-gender">
-                            <h2 className="App-chart-title">Physical Exercise Engagement Among Individuals</h2>
+                            <h2 className="App-chart-title">Gender</h2>
                             <DonutChartGender
                               width={570}
                               height={278}
                               data={donutChartDataGender}
+                              onClickPieSlice={setParticipantCount}
                             />
                         </div>
                       )}

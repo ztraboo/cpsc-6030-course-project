@@ -14,9 +14,10 @@ type DonutChartGenderProps = {
     width: number;
     height: number;
     data: DataItem[];
+    onClickPieSlice: Function;
 };
 
-const DonutChartGender = ({ width, height, data }: DonutChartGenderProps) => {
+const DonutChartGender = ({ width, height, data, onClickPieSlice }: DonutChartGenderProps) => {
 
     return (
         <>
@@ -26,6 +27,7 @@ const DonutChartGender = ({ width, height, data }: DonutChartGenderProps) => {
             data={data}
             showPercentages={true}
             markColorScale={colorScaleGender}
+            onClickPieSlice={onClickPieSlice}
         />
         </>
     );
