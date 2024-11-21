@@ -14,7 +14,7 @@ d3.csv("dataset.csv").then(
         });
 
         var dimensions = {
-            width: 1800,
+            width: 1200,
             height: 800,
             margin:{
                 top:10,
