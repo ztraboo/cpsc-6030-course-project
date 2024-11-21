@@ -12,10 +12,13 @@ type ScatterplotChartBloodMeasuresVsBMIProps = {
         glucoseFasting: number;
         bodyMassIndex: number;
         markColorField: string;
+        filterGender: string;
     }[];
+    hoveredGroup: string | null;
+    setHoveredGroup: Function;
 };
 
-const ScatterplotChartBloodMeasuresVsBMI = ({ height, data }: ScatterplotChartBloodMeasuresVsBMIProps) => {
+const ScatterplotChartBloodMeasuresVsBMI = ({ height, data, hoveredGroup, setHoveredGroup }: ScatterplotChartBloodMeasuresVsBMIProps) => {
 
     // data.map(d => console.log(d));
 
@@ -23,7 +26,8 @@ const ScatterplotChartBloodMeasuresVsBMI = ({ height, data }: ScatterplotChartBl
         return {
             x: d.bodyMassIndex,
             y: d.glucoseFasting,
-            markColorField: d.markColorField
+            markColorField: d.markColorField,
+            filterGender: d.filterGender
         }
     });
 
@@ -31,7 +35,8 @@ const ScatterplotChartBloodMeasuresVsBMI = ({ height, data }: ScatterplotChartBl
         return {
             x: d.bodyMassIndex,
             y: d.glucoseAfter2Hour,
-            markColorField: d.markColorField
+            markColorField: d.markColorField,
+            filterGender: d.filterGender
         }
     });
 
@@ -39,7 +44,8 @@ const ScatterplotChartBloodMeasuresVsBMI = ({ height, data }: ScatterplotChartBl
         return {
             x: d.bodyMassIndex,
             y: d.insulin,
-            markColorField: d.markColorField
+            markColorField: d.markColorField,
+            filterGender: d.filterGender
         }
     });
 
@@ -54,6 +60,9 @@ const ScatterplotChartBloodMeasuresVsBMI = ({ height, data }: ScatterplotChartBl
             yAxisLabel="Fasting Blood Glucose"
             yAxisTicks={8}
             showXAxis={false}
+            hoveredGroup={hoveredGroup}
+            setHoveredGroup={setHoveredGroup}
+            
         />
         <D3ScatterPlotChart
             height={height}
@@ -65,6 +74,8 @@ const ScatterplotChartBloodMeasuresVsBMI = ({ height, data }: ScatterplotChartBl
             yAxisTicks={12}
             showXAxis={false}
             showLegend={false}
+            hoveredGroup={hoveredGroup}
+            setHoveredGroup={setHoveredGroup}
         />
         <D3ScatterPlotChart
             height={height+70}
@@ -76,6 +87,8 @@ const ScatterplotChartBloodMeasuresVsBMI = ({ height, data }: ScatterplotChartBl
             xAxisTicks={13}
             yAxisTicks={10}
             showLegend={false}
+            hoveredGroup={hoveredGroup}
+            setHoveredGroup={setHoveredGroup}
         />
         </>
     );

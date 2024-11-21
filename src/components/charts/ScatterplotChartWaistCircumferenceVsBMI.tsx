@@ -7,13 +7,16 @@ import { colorScaleGender } from "../marks/Color";
 type ScatterplotChartWaistCircumferenceVsBMIProps = {
     height: number;
     data: { 
-        waistCircumference: number,
-        bodyMassIndex: number,
-        markColorField: string
+        waistCircumference: number;
+        bodyMassIndex: number;
+        markColorField: string;
+        filterGender: string;
     }[];
+    hoveredGroup: string | null;
+    setHoveredGroup: Function;
 };
 
-const ScatterplotChartWaistCircumferenceVsBMI = ({ height, data }: ScatterplotChartWaistCircumferenceVsBMIProps) => {
+const ScatterplotChartWaistCircumferenceVsBMI = ({ height, data, hoveredGroup, setHoveredGroup }: ScatterplotChartWaistCircumferenceVsBMIProps) => {
 
     // data.map(d => console.log(d));
 
@@ -21,7 +24,8 @@ const ScatterplotChartWaistCircumferenceVsBMI = ({ height, data }: ScatterplotCh
         return {
             x: d.waistCircumference,
             y: d.bodyMassIndex,
-            markColorField: d.markColorField
+            markColorField: d.markColorField,
+            filterGender: d.filterGender
         }
     });
 
@@ -37,6 +41,8 @@ const ScatterplotChartWaistCircumferenceVsBMI = ({ height, data }: ScatterplotCh
             xAxisTicks={20}
             yAxisTicks={10}
             legendAlign="left"
+            hoveredGroup={hoveredGroup}
+            setHoveredGroup={setHoveredGroup}
         />
         </>
     );

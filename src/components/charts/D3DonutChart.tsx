@@ -14,7 +14,9 @@ type D3DonutChartProps = {
   data: DataItem[];
   showPercentages: boolean;
   markColorScale: d3.ScaleOrdinal<any, any>;
-  onClickPieSlice: Function;
+  onUpdateParticipantCount: Function;
+  onFilterByGender?: Function;
+  onSliceClick: Array<Function> | [];
 };
 
 const MARGIN_X = 150;
@@ -22,7 +24,7 @@ const MARGIN_Y = 50;
 const INFLEXION_PADDING = 20; // space between donut and label inflexion point
 
 
-const D3DonutChart = ({ width, height, data, showPercentages, markColorScale, onClickPieSlice }: D3DonutChartProps) => {
+const D3DonutChart = ({ width, height, data, showPercentages, markColorScale, onUpdateParticipantCount, onFilterByGender, onSliceClick }: D3DonutChartProps) => {
     const [participantCount, setParticipantCount] = useState(0);
     const [toggledSlice, setToggledSlice] = useState(false);
     
@@ -83,13 +85,18 @@ const D3DonutChart = ({ width, height, data, showPercentages, markColorScale, on
                 // }
             }}
             onClick={(s) => {
-                console.log("toggledSlice = " + toggledSlice);
+                // console.log("toggledSlice = " + toggledSlice);
                 setToggledSlice(!toggledSlice);
+
+                // Handle interactions passed for slick click for other charts.
+                onSliceClick.forEach((func) => {
+                    func(toggledSlice, markColorScale(grp.data.name));
+                });
 
                 if (toggledSlice) {
                     
                     // Change the number for participants based on the slice selection.
-                    onClickPieSlice(grp.data.value);
+                    onUpdateParticipantCount(grp.data.value);
                     d3.select(".card-participants-container .stat").attr("style", "color: " + markColorScale(grp.data.name));
 
                     // Desaturate and turn down opacity of all slices using '.hasHighlight .slice' class.
@@ -105,6 +112,10 @@ const D3DonutChart = ({ width, height, data, showPercentages, markColorScale, on
                     // Add an inline styling for current selected slice.
                     d3.select(s.currentTarget)
                     .attr("style", "filter: saturate(100%); opacity: 1;");
+
+                    if (onFilterByGender !== undefined) {
+                        onFilterByGender(grp.data.name);
+                    }
                 } else {
                     
                     // Change the number for participants for the whole donut chart values.
@@ -112,7 +123,7 @@ const D3DonutChart = ({ width, height, data, showPercentages, markColorScale, on
                     data.forEach((slice) => {
                         totalParticipantCount += slice.value
                     })
-                    onClickPieSlice(totalParticipantCount);
+                    onUpdateParticipantCount(totalParticipantCount);
                     d3.select(".card-participants-container .stat").attr("style", null);
 
                     // Saturate and enable full opacity of all slices by removing '.hasHighlight .slice' class.
@@ -123,6 +134,10 @@ const D3DonutChart = ({ width, height, data, showPercentages, markColorScale, on
                     // Remove inline style for current selected slice.
                     d3.select(s.currentTarget)
                     .attr("style", null);
+
+                    if (onFilterByGender !== undefined) {
+                        onFilterByGender(null);
+                    }
                 }
             }}
         >

@@ -32,6 +32,7 @@ type D3ScatterplotChartProps = {
         x: number;
         y: number;
         markColorField: string;
+        filterGender: string;
     }[];
     markColorFieldLegendName: string,
     markColorScale: d3.ScaleOrdinal<any, any>;
@@ -43,16 +44,18 @@ type D3ScatterplotChartProps = {
     showYAxis?: boolean;
     legendAlign?: string;
     showLegend?: boolean;
+    hoveredGroup: string | null;
+    setHoveredGroup: Function;
 };
 
-const D3ScatterplotChart = ({ height, data, markColorFieldLegendName, markColorScale, xAxisLabel, yAxisLabel, xAxisTicks=30, yAxisTicks=30, showXAxis=true, showYAxis=true, legendAlign="right", showLegend=true }: D3ScatterplotChartProps) => {
+const D3ScatterplotChart = ({ height, data, markColorFieldLegendName, markColorScale, xAxisLabel, yAxisLabel, xAxisTicks=30, yAxisTicks=30, showXAxis=true, showYAxis=true, legendAlign="right", showLegend=true, hoveredGroup, setHoveredGroup }: D3ScatterplotChartProps) => {
 
     // Remove the margin spacing when the axis labels are missing to save on space.
     MARGIN.left = (showYAxis === false) ? 0 : 70;
     MARGIN.bottom = (showXAxis === false) ? 0 : 80;
 
     const [hovered, setHovered] = useState<InteractionData | null>(null);
-    const [hoveredGroup, setHoveredGroup] = useState<string | null>(null);
+    // const [hoveredGroup, setHoveredGroup] = useState<string | null>(null); 
 
     const [ref, dms] = useChartDimensions({
         marginTop: MARGIN.top,
@@ -90,7 +93,7 @@ const D3ScatterplotChart = ({ height, data, markColorFieldLegendName, markColorS
     .range([boundsHeight, 0]); // axis y dimensions
 
     const yAxis = d3.axisLeft(yScale);
-  
+
     // Build the shapes (dots)
     const allShapes = data.map((d, i) => {
 
@@ -109,9 +112,8 @@ const D3ScatterplotChart = ({ height, data, markColorFieldLegendName, markColorS
           stroke={markColorScale(d.markColorField)}
           fill={markColorScale(d.markColorField)}
           fillOpacity={0.6}
-          onMouseOver={() => {            
+          onMouseOver={() => {
             setHoveredGroup(d.markColorField);
-
             setHovered({
                 xPos: xScale(d.x),
                 yPos: yScale(d.y),

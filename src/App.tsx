@@ -16,6 +16,9 @@ import ScatterplotChartBloodMeasuresVsBMI from "./components/charts/ScatterplotC
 import ScatterplotChartWaistCircumferenceVsBMI from "./components/charts/ScatterplotChartWaistCircumferenceVsBMI";
 import StackedBarChartAgeVsExercise from "./components/charts/StackedBarChartAgeVsExercise";
 
+// Import interactions
+import { onDonutChartGenderSliceClick } from "./interactions/InteractionsDonutChartGender";
+
 // interface DataItemAgeVsExercise {
 //   Age: number;
 //   No: number;
@@ -39,9 +42,13 @@ function App() {
   const [
     donutChartDataGender, setDonutChartDataGender
   ] = useState([] as Participant[]);
+
+  const [hoveredGroupDataDataBloodMeasuresVsBMI, setHoveredGroupDataDataBloodMeasuresVsBMI] = useState<string | null>(null);
   const [
     scatterplotChartDataBloodMeasuresVsBMI, setScatterplotChartDataBloodMeasuresVsBMI
   ] = useState([]);
+
+  const [hoveredGroupDataWaistCircumferenceVsBMIByGender, setHoveredGroupDataWaistCircumferenceVsBMIByGender] = useState<string | null>(null);
   const [
     scatterplotChartDataWaistCircumferenceVsBMI, setScatterplotChartDataWaistCircumferenceVsBMI
   ] = useState([]);
@@ -210,7 +217,8 @@ function App() {
                 [ 
                   [ "waistCircumference", parseFloat(participant["Waist Circumference (cm)"])],
                   [ "bodyMassIndex", parseFloat(participant["Bmxbmi"]) ],
-                  [ "markColorField", participant["Gender"] ]  
+                  [ "markColorField", participant["Gender"] ],
+                  [ "filterGender", participant["Gender"] ]
                 ]
               ) 
             })
@@ -272,6 +280,8 @@ function App() {
                               <ScatterplotChartBloodMeasuresVsBMI
                                 height={260}
                                 data={scatterplotChartDataBloodMeasuresVsBMI}
+                                hoveredGroup={hoveredGroupDataDataBloodMeasuresVsBMI}
+                                setHoveredGroup={setHoveredGroupDataDataBloodMeasuresVsBMI}
                               />
                           </div>
                       )}
@@ -295,7 +305,9 @@ function App() {
                               width={570}
                               height={278}
                               data={donutChartDataGender}
-                              onClickPieSlice={setParticipantCount}
+                              onUpdateParticipantCount={setParticipantCount}
+                              onFilterByGender={setHoveredGroupDataWaistCircumferenceVsBMIByGender}
+                              onSliceClick={[onDonutChartGenderSliceClick]}
                             />
                         </div>
                       )}
@@ -319,6 +331,8 @@ function App() {
                             <ScatterplotChartWaistCircumferenceVsBMI
                               height={300}
                               data={scatterplotChartDataWaistCircumferenceVsBMI}
+                              hoveredGroup={hoveredGroupDataWaistCircumferenceVsBMIByGender}
+                              setHoveredGroup={setHoveredGroupDataWaistCircumferenceVsBMIByGender}
                             />
                         </div>
                     )}
