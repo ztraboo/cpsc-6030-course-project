@@ -4,6 +4,7 @@ import * as d3 from "d3";
 import styles from "./donut-chart.module.css";
 
 type DataItem = {
+  seqnIdentifiers: Set<number>;
   name: string;
   value: number;
   percentage: number;
@@ -90,7 +91,7 @@ const D3DonutChart = ({ width, height, data, showPercentages, markColorScale, on
 
                 // Handle interactions passed for slick click for other charts.
                 onSliceClick.forEach((func) => {
-                    func(toggledSlice, markColorScale(grp.data.name));
+                    func(toggledSlice, grp.data.seqnIdentifiers);
                 });
 
                 if (toggledSlice) {

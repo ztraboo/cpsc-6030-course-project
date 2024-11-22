@@ -7,6 +7,7 @@ import { colorScaleGender } from "../marks/Color";
 type ScatterplotChartWaistCircumferenceVsBMIProps = {
     height: number;
     data: { 
+        seqn: number;
         waistCircumference: number;
         bodyMassIndex: number;
         markColorField: string;
@@ -25,7 +26,8 @@ const ScatterplotChartWaistCircumferenceVsBMI = ({ height, data, hoveredGroup, s
             x: d.waistCircumference,
             y: d.bodyMassIndex,
             markColorField: d.markColorField,
-            filterGender: d.filterGender
+            filterGender: d.filterGender,
+            seqn: d.seqn
         }
     });
 

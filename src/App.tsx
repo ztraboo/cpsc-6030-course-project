@@ -26,6 +26,7 @@ import { onDonutChartGenderSliceClick } from "./interactions/InteractionsDonutCh
 // }
 
 interface Participant {
+  seqnIdentifiers: Set<number>;
   name: string;
   value: number;
   percentage: number;
@@ -89,6 +90,7 @@ function App() {
         .map((participant: any) => {            
           return Object.fromEntries(
             [ 
+              [ "seqn", parseInt(participant["Seqn"]) ],
               [ "age", parseFloat(participant["Age"]) ],
               [ "exercise", participant["Paq605 ( Vigorous Exercise)"] ],
             ]
@@ -142,13 +144,18 @@ function App() {
         // ---------------------------------------------------------------------------
         // Get donut `Gender` data.
         // Reference: https://www.geeksforgeeks.org/count-distinct-elements-in-an-array/
-        let uniqueGenders = new Set();
-        let uniqueParticipantsFemale = new Set();
-        let uniqueParticipantsMale = new Set();
+        let uniqueGenders = new Set<string>();
+        let uniqueParticipantsFemale = new Set<number>();
+        let uniqueParticipantsMale = new Set<number>();
         data
         .map((participant: any) => {
           return Object.fromEntries(
             [ 
+              [ "seqnIdentifiers", 
+                (participant["Gender"] === "Male") ? 
+                  uniqueParticipantsMale : 
+                  uniqueParticipantsFemale
+              ],
               // [ "name", uniqueGenders.add(participant["calcFieldGender"]) ],
               [ "name", uniqueGenders.add(participant["Gender"]) ],
               [ "value", 
@@ -165,6 +172,10 @@ function App() {
         uniqueGenders.forEach((gender) => {
           donutData.push(
             {
+              seqnIdentifiers: 
+                (gender === "Male") ? 
+                uniqueParticipantsMale:
+                uniqueParticipantsFemale,
               name: gender as string,
               value: 
                 (gender === "Male") ? 
@@ -194,6 +205,7 @@ function App() {
             .map((participant: any) => {            
               return Object.fromEntries(
                 [ 
+                  [ "seqn", participant["Seqn"] ],
                   [ "bodyMassIndex", parseFloat(participant["Bmxbmi"]) ],
                   [ "insulin", parseFloat(participant["Insulin"]) ],
                   [ "glucoseAfter2Hour", parseFloat(participant["Lbxglt(Glucose after 2 hr)"]) ],
@@ -215,6 +227,7 @@ function App() {
             .map((participant: any) => {            
               return Object.fromEntries(
                 [ 
+                  [ "seqn", participant["Seqn"] ],
                   [ "waistCircumference", parseFloat(participant["Waist Circumference (cm)"])],
                   [ "bodyMassIndex", parseFloat(participant["Bmxbmi"]) ],
                   [ "markColorField", participant["Gender"] ],

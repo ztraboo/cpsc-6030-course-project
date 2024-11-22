@@ -7,6 +7,7 @@ import { colorScaleGender, colorScaleDiabetesDiagnosisStatus } from "../marks/Co
 type ScatterplotChartBloodMeasuresVsBMIProps = {
     height: number;
     data: { 
+        seqn: number;
         insulin: number;
         glucoseAfter2Hour: number;
         glucoseFasting: number;
@@ -27,7 +28,8 @@ const ScatterplotChartBloodMeasuresVsBMI = ({ height, data, hoveredGroup, setHov
             x: d.bodyMassIndex,
             y: d.glucoseFasting,
             markColorField: d.markColorField,
-            filterGender: d.filterGender
+            filterGender: d.filterGender,
+            seqn: d.seqn
         }
     });
 
@@ -36,7 +38,8 @@ const ScatterplotChartBloodMeasuresVsBMI = ({ height, data, hoveredGroup, setHov
             x: d.bodyMassIndex,
             y: d.glucoseAfter2Hour,
             markColorField: d.markColorField,
-            filterGender: d.filterGender
+            filterGender: d.filterGender,
+            seqn: d.seqn
         }
     });
 
@@ -45,7 +48,8 @@ const ScatterplotChartBloodMeasuresVsBMI = ({ height, data, hoveredGroup, setHov
             x: d.bodyMassIndex,
             y: d.insulin,
             markColorField: d.markColorField,
-            filterGender: d.filterGender
+            filterGender: d.filterGender,
+            seqn: d.seqn
         }
     });
 

@@ -33,6 +33,7 @@ type D3ScatterplotChartProps = {
         y: number;
         markColorField: string;
         filterGender: string;
+        seqn: number;
     }[];
     markColorFieldLegendName: string,
     markColorScale: d3.ScaleOrdinal<any, any>;
@@ -130,6 +131,7 @@ const D3ScatterplotChart = ({ height, data, markColorFieldLegendName, markColorS
             setHoveredGroup(null)
             setHovered(null)
           }}
+          data-seqn={d.seqn}
         />
       );
     });
@@ -223,9 +225,7 @@ const D3ScatterplotChart = ({ height, data, markColorFieldLegendName, markColorS
                     {/* X axis - Add separator line, except after the last plot (*/}
                     {!showXAxis && (
                         <>
-                        <svg>
-                            <line x1={0} x2={boundsWidth} y1={boundsHeight} y2={boundsHeight} stroke={"gray"} strokeWidth={1} strokeDasharray={"4, 4"} />
-                        </svg>
+                            <line x1={0} x2={boundsWidth} y1={boundsHeight} y2={boundsHeight} stroke={"gray"} strokeWidth={"4"}  strokeDasharray={"4, 4"} />
                         </>
                     )}
                 </g>

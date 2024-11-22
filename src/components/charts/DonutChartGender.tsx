@@ -5,6 +5,7 @@ import D3DonutChart from "./D3DonutChart";
 import { colorScaleGender } from "../marks/Color";
 
 type DataItem = {
+    seqnIdentifiers: Set<number>;
     name: string;
     value: number;
     percentage: number;
