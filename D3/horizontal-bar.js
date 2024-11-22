@@ -105,7 +105,7 @@ d3.csv("dataset.csv").then(function(dataset) {
         .attr("x", d => xScale(d[0])) // Start of the bar segment
         .attr("width", d => xScale(d[1]) - xScale(d[0])) // Width of the bar segment
         .attr("height", yScale.bandwidth()); // Height based on band scale
-
+        
     // Legend
     const legend = svg.selectAll(".legend")
         .data(colorScale.domain())
