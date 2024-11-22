@@ -90,7 +90,7 @@ d3.csv("dataset.csv").then(function(dataset) {
         .style("text-anchor", "middle")
         .text("Participants");
 
-    // Render the stacked bars
+    // Render the stacked bars with interactivity
     svg.selectAll(".layer")
         .data(layers)
         .enter()
@@ -104,8 +104,33 @@ d3.csv("dataset.csv").then(function(dataset) {
         .attr("y", d => yScale(d.data.AgeGroup)) // Position by age group
         .attr("x", d => xScale(d[0])) // Start of the bar segment
         .attr("width", d => xScale(d[1]) - xScale(d[0])) // Width of the bar segment
-        .attr("height", yScale.bandwidth()); // Height based on band scale
-        
+        .attr("height", yScale.bandwidth()) // Height based on band scale
+        .on("mouseover", function() {
+            d3.select(this).style("stroke", "black").style("stroke-width", 2);
+        })
+        .on("mouseout", function() {
+            d3.select(this).style("stroke", "none");
+        })
+        .on("click", function(event, d) {
+            // Highlight the selected bar
+            d3.selectAll("rect").style("opacity", 0.5);
+            d3.select(this).style("opacity", 1);
+
+            // Emit a custom event with the selected age group
+            const selectedAgeGroup = d.data.AgeGroup;
+            const selectedExercise = d3.select(this.parentNode).datum().key;
+            const eventDetail = { 
+                detail: { 
+                    ageGroup: selectedAgeGroup, 
+                    exerciseType: selectedExercise 
+                } 
+            };
+            window.dispatchEvent(new CustomEvent("ageGroupSelected", eventDetail));
+            console.log(selectedAgeGroup)
+            console.log(selectedExercise)
+            console.log(eventDetail)
+        });
+
     // Legend
     const legend = svg.selectAll(".legend")
         .data(colorScale.domain())
