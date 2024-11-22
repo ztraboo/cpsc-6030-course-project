@@ -288,7 +288,7 @@ function App() {
                     <div className="left-pane">
                       {/* Scatterplot Chart - Blood Measures vs. BMI */}
                       {scatterplotChartDataBloodMeasuresVsBMI !== undefined && (
-                          <div className="card scatterplot-chart-container">
+                          <div className="card scatterplot-chart-container scatterplot-chart-blood-measures-vs-bmi">
                               <h2 className="App-chart-title">Blood Measures vs. BMI</h2>
                               <ScatterplotChartBloodMeasuresVsBMI
                                 height={260}

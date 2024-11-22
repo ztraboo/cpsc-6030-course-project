@@ -47,9 +47,10 @@ type D3ScatterplotChartProps = {
     showLegend?: boolean;
     hoveredGroup: string | null;
     setHoveredGroup: Function;
+    interactiveClassName?: string;
 };
 
-const D3ScatterplotChart = ({ height, data, markColorFieldLegendName, markColorScale, xAxisLabel, yAxisLabel, xAxisTicks=30, yAxisTicks=30, showXAxis=true, showYAxis=true, legendAlign="right", showLegend=true, hoveredGroup, setHoveredGroup }: D3ScatterplotChartProps) => {
+const D3ScatterplotChart = ({ height, data, markColorFieldLegendName, markColorScale, xAxisLabel, yAxisLabel, xAxisTicks=30, yAxisTicks=30, showXAxis=true, showYAxis=true, legendAlign="right", showLegend=true, hoveredGroup, setHoveredGroup, interactiveClassName }: D3ScatterplotChartProps) => {
 
     // Remove the margin spacing when the axis labels are missing to save on space.
     MARGIN.left = (showYAxis === false) ? 0 : 70;
@@ -145,6 +146,8 @@ const D3ScatterplotChart = ({ height, data, markColorFieldLegendName, markColorS
     const xAxisPixelsPerTick = boundsWidth / xAxisTicks;
     const yAxisPixelsPerTick = boundsHeight / yAxisTicks;
 
+    let svgClassName = "viz " + interactiveClassName
+
     return(
         <div
             ref={ref as MutableRefObject<HTMLDivElement>}
@@ -158,7 +161,7 @@ const D3ScatterplotChart = ({ height, data, markColorFieldLegendName, markColorS
                 width={width}
                 height={height}
                 viewBox={`0 0 ${width} ${height}`}
-                className="viz"
+                className={svgClassName}
                 shapeRendering={"crispEdges"}
             >
                 <g

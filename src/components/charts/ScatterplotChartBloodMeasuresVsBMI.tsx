@@ -66,6 +66,7 @@ const ScatterplotChartBloodMeasuresVsBMI = ({ height, data, hoveredGroup, setHov
             showXAxis={false}
             hoveredGroup={hoveredGroup}
             setHoveredGroup={setHoveredGroup}
+            interactiveClassName={"chart-1"}
             
         />
         <D3ScatterPlotChart
@@ -80,6 +81,7 @@ const ScatterplotChartBloodMeasuresVsBMI = ({ height, data, hoveredGroup, setHov
             showLegend={false}
             hoveredGroup={hoveredGroup}
             setHoveredGroup={setHoveredGroup}
+            interactiveClassName={"chart-2"}
         />
         <D3ScatterPlotChart
             height={height+70}
@@ -93,6 +95,7 @@ const ScatterplotChartBloodMeasuresVsBMI = ({ height, data, hoveredGroup, setHov
             showLegend={false}
             hoveredGroup={hoveredGroup}
             setHoveredGroup={setHoveredGroup}
+            interactiveClassName={"chart-3"}
         />
         </>
     );
