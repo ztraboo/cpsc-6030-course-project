@@ -13,7 +13,11 @@ type StackedBarChartAgeVsExerciseProps = {
     data: {
         ageGroup: string;
         groupExerciseLevelNo: number;
+        groupExerciseLevelNoMale: number;
+        groupExerciseLevelNoFemale: number;
         groupExerciseLevelVigorous: number;
+        groupExerciseLevelVigorousMale: number;
+        groupExerciseLevelVigorousFemale: number;
         markColorField: string;
     }[];
 };
@@ -29,7 +33,11 @@ const StackedBarChartAgeVsExercise = ({ height, data }: StackedBarChartAgeVsExer
         return {
             x: d.ageGroup,
             No: d.groupExerciseLevelNo,
-            Vigorous: d.groupExerciseLevelVigorous
+            NoMale: d.groupExerciseLevelNoMale,
+            NoFemale: d.groupExerciseLevelNoFemale,
+            Vigorous: d.groupExerciseLevelVigorous,
+            VigorousMale: d.groupExerciseLevelVigorousMale,
+            VigorousFemale: d.groupExerciseLevelVigorousFemale
         }
     });
 

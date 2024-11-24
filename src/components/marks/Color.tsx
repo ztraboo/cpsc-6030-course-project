@@ -14,4 +14,4 @@ export const colorScaleDiabetesDiagnosisStatus = d3
 export const colorScaleExerciseLevel = d3
     .scaleOrdinal<string, string>()
     .domain(["No", "Vigorous"])
-    .range(["#ae7aa1", "#59a14f"]);
+    .range(["#75654D", "#F5A326"]);

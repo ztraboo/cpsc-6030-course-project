@@ -5,6 +5,7 @@ import D3DonutChart from "./D3DonutChart";
 import { colorScaleGender } from "../marks/Color";
 
 type DataItem = {
+    seqnIdentifiers: Set<number>;
     name: string;
     value: number;
     percentage: number;
@@ -14,9 +15,12 @@ type DonutChartGenderProps = {
     width: number;
     height: number;
     data: DataItem[];
+    onUpdateParticipantCount: Function;
+    onFilterByGender: Function;
+    onSliceClick: Array<Function> | [];
 };
 
-const DonutChartGender = ({ width, height, data }: DonutChartGenderProps) => {
+const DonutChartGender = ({ width, height, data, onUpdateParticipantCount, onFilterByGender, onSliceClick }: DonutChartGenderProps) => {
 
     return (
         <>
@@ -26,6 +30,9 @@ const DonutChartGender = ({ width, height, data }: DonutChartGenderProps) => {
             data={data}
             showPercentages={true}
             markColorScale={colorScaleGender}
+            onUpdateParticipantCount={onUpdateParticipantCount}
+            onFilterByGender={onFilterByGender}
+            onSliceClick={onSliceClick}
         />
         </>
     );

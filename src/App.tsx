@@ -16,6 +16,9 @@ import ScatterplotChartBloodMeasuresVsBMI from "./components/charts/ScatterplotC
 import ScatterplotChartWaistCircumferenceVsBMI from "./components/charts/ScatterplotChartWaistCircumferenceVsBMI";
 import StackedBarChartAgeVsExercise from "./components/charts/StackedBarChartAgeVsExercise";
 
+// Import interactions
+import { onDonutChartGenderSliceClick } from "./interactions/InteractionsDonutChartGender";
+
 // interface DataItemAgeVsExercise {
 //   Age: number;
 //   No: number;
@@ -23,12 +26,15 @@ import StackedBarChartAgeVsExercise from "./components/charts/StackedBarChartAge
 // }
 
 interface Participant {
+  seqnIdentifiers: Set<number>;
   name: string;
   value: number;
   percentage: number;
 }
 
 function App() {
+
+  const [participantCount, setParticipantCount] = useState(0);
 
   const [mergedData, setMergedData] = useState<d3.DSVRowArray<string>>();
   const [
@@ -37,9 +43,13 @@ function App() {
   const [
     donutChartDataGender, setDonutChartDataGender
   ] = useState([] as Participant[]);
+
+  const [hoveredGroupDataDataBloodMeasuresVsBMI, setHoveredGroupDataDataBloodMeasuresVsBMI] = useState<string | null>(null);
   const [
     scatterplotChartDataBloodMeasuresVsBMI, setScatterplotChartDataBloodMeasuresVsBMI
   ] = useState([]);
+
+  const [hoveredGroupDataWaistCircumferenceVsBMIByGender, setHoveredGroupDataWaistCircumferenceVsBMIByGender] = useState<string | null>(null);
   const [
     scatterplotChartDataWaistCircumferenceVsBMI, setScatterplotChartDataWaistCircumferenceVsBMI
   ] = useState([]);
@@ -54,7 +64,7 @@ function App() {
         let data = fetchedData[0];
 
         // Add calculated fields
-        data = data
+        // data = data
         // .map((d: any) => {
         //   d["calcFieldGender"] = (d["RIAGENDR"] === "1" ? "Male" : "Female");
         //   return d;
@@ -63,6 +73,10 @@ function App() {
 
         // Set the state for merged data.
         setMergedData(data);
+
+        // ---------------------------------------------------------------------------
+        // Participant Count
+        setParticipantCount(data !== undefined ? data.length : 0);
 
         // ---------------------------------------------------------------------------
         // Get bar chart `Age vs. Vigorous Exercise` data.
@@ -76,8 +90,10 @@ function App() {
         .map((participant: any) => {            
           return Object.fromEntries(
             [ 
+              [ "seqn", parseInt(participant["Seqn"]) ],
               [ "age", parseFloat(participant["Age"]) ],
               [ "exercise", participant["Paq605 ( Vigorous Exercise)"] ],
+              [ "gender", participant["Gender"] ]
             ]
           ) 
         })
@@ -93,21 +109,26 @@ function App() {
         }
         
         // Aggregate data by age and exercise level
-        const ageGroupExerciseCounts = d3.rollup(
+        const ageGroupExerciseCounts: any = d3.rollup(
           dataBarAgeVsExercise,
             (v) => v.length, // Count participants
             (d) => getAgeGroup(d.age), // Group by Age Group
-            (d) => d.exercise // Group by Exercise Level
+            (d) => d.exercise, // Group by Exercise Level
+            (d) => d.gender
         );
 
         // console.log(ageGroupExerciseCounts);
 
         // Convert the data into an array of objects for easy stacking
-        const formattedData = Array.from(ageGroupExerciseCounts, ([ageGroup, exerciseMap]) => {
-            const entry = { AgeGroup: ageGroup, No: 0, Vigorous: 0 };
-            exerciseMap.forEach((count, exercise) => {
-                if (exercise === "No") entry.No = count;
-                else if (exercise === "Vigorous") entry.Vigorous = count;
+        const formattedData = Array.from(ageGroupExerciseCounts, ([ageGroup, exerciseMap, genderMap]) => {
+            const entry = { 
+              AgeGroup: ageGroup,
+              No: 0,
+              Vigorous: 0
+            };
+            exerciseMap.forEach((count: any, exercise: any) => {
+                if (exercise === "No") entry["No"] = count;
+                else if (exercise === "Vigorous") entry["Vigorous"] = count;
             });
             return entry;
         });
@@ -115,12 +136,20 @@ function App() {
 
         setBarChartDataAgeVsExerciseLevel(
           formattedData
-          .map((entry: any) => {            
+          .map((entry: any) => {    
+            let noCount = 0;
+            entry["No"].forEach((currentValue: number) => noCount += currentValue);
+            let vigorousCount = 0;
+            entry["Vigorous"].forEach((currentValue: number) => vigorousCount += currentValue);
             return Object.fromEntries(
               [ 
                 [ "ageGroup", entry["AgeGroup"] ],
-                [ "groupExerciseLevelNo", entry["No"] ],
-                [ "groupExerciseLevelVigorous", entry["Vigorous"] ]
+                [ "groupExerciseLevelNo", noCount ],
+                [ "groupExerciseLevelNoMale", entry["No"].get("Male") ],
+                [ "groupExerciseLevelNoFemale", entry["No"].get("Female") ],
+                [ "groupExerciseLevelVigorous", vigorousCount ],
+                [ "groupExerciseLevelVigorousMale", entry["Vigorous"].get("Male") ],
+                [ "groupExerciseLevelVigorousFemale", entry["Vigorous"].get("Female") ],
               ]
             ) 
           })
@@ -129,13 +158,18 @@ function App() {
         // ---------------------------------------------------------------------------
         // Get donut `Gender` data.
         // Reference: https://www.geeksforgeeks.org/count-distinct-elements-in-an-array/
-        let uniqueGenders = new Set();
-        let uniqueParticipantsFemale = new Set();
-        let uniqueParticipantsMale = new Set();
+        let uniqueGenders = new Set<string>();
+        let uniqueParticipantsFemale = new Set<number>();
+        let uniqueParticipantsMale = new Set<number>();
         data
         .map((participant: any) => {
           return Object.fromEntries(
             [ 
+              [ "seqnIdentifiers", 
+                (participant["Gender"] === "Male") ? 
+                  uniqueParticipantsMale : 
+                  uniqueParticipantsFemale
+              ],
               // [ "name", uniqueGenders.add(participant["calcFieldGender"]) ],
               [ "name", uniqueGenders.add(participant["Gender"]) ],
               [ "value", 
@@ -152,6 +186,10 @@ function App() {
         uniqueGenders.forEach((gender) => {
           donutData.push(
             {
+              seqnIdentifiers: 
+                (gender === "Male") ? 
+                uniqueParticipantsMale:
+                uniqueParticipantsFemale,
               name: gender as string,
               value: 
                 (gender === "Male") ? 
@@ -181,6 +219,7 @@ function App() {
             .map((participant: any) => {            
               return Object.fromEntries(
                 [ 
+                  [ "seqn", participant["Seqn"] ],
                   [ "bodyMassIndex", parseFloat(participant["Bmxbmi"]) ],
                   [ "insulin", parseFloat(participant["Insulin"]) ],
                   [ "glucoseAfter2Hour", parseFloat(participant["Lbxglt(Glucose after 2 hr)"]) ],
@@ -202,9 +241,11 @@ function App() {
             .map((participant: any) => {            
               return Object.fromEntries(
                 [ 
+                  [ "seqn", participant["Seqn"] ],
                   [ "waistCircumference", parseFloat(participant["Waist Circumference (cm)"])],
                   [ "bodyMassIndex", parseFloat(participant["Bmxbmi"]) ],
-                  [ "markColorField", participant["Gender"] ]  
+                  [ "markColorField", participant["Gender"] ],
+                  [ "filterGender", participant["Gender"] ]
                 ]
               ) 
             })
@@ -261,11 +302,13 @@ function App() {
                     <div className="left-pane">
                       {/* Scatterplot Chart - Blood Measures vs. BMI */}
                       {scatterplotChartDataBloodMeasuresVsBMI !== undefined && (
-                          <div className="card scatterplot-chart-container">
+                          <div className="card scatterplot-chart-container scatterplot-chart-blood-measures-vs-bmi">
                               <h2 className="App-chart-title">Blood Measures vs. BMI</h2>
                               <ScatterplotChartBloodMeasuresVsBMI
                                 height={260}
                                 data={scatterplotChartDataBloodMeasuresVsBMI}
+                                hoveredGroup={hoveredGroupDataDataBloodMeasuresVsBMI}
+                                setHoveredGroup={setHoveredGroupDataDataBloodMeasuresVsBMI}
                               />
                           </div>
                       )}
@@ -275,20 +318,23 @@ function App() {
 
                       {/* Total Metrics - Participants */}
                       <div className="card card-participants-container stat-card">
-                        <h2>Total Participants</h2>
+                        <h2>Participants</h2>
                         <span className="stat">
-                          {mergedData !== undefined ? mergedData.length : 0}
+                          {participantCount}
                         </span>
                       </div>
 
                       {/* Donut Chart - Gender */}
                       {donutChartDataGender !== undefined && (
                         <div className="card donut-chart-container donut-chart-gender">
-                            <h2 className="App-chart-title">Physical Exercise Engagement Among Individuals</h2>
+                            <h2 className="App-chart-title">Gender</h2>
                             <DonutChartGender
                               width={570}
                               height={278}
                               data={donutChartDataGender}
+                              onUpdateParticipantCount={setParticipantCount}
+                              onFilterByGender={setHoveredGroupDataWaistCircumferenceVsBMIByGender}
+                              onSliceClick={[onDonutChartGenderSliceClick]}
                             />
                         </div>
                       )}
@@ -312,6 +358,8 @@ function App() {
                             <ScatterplotChartWaistCircumferenceVsBMI
                               height={300}
                               data={scatterplotChartDataWaistCircumferenceVsBMI}
+                              hoveredGroup={hoveredGroupDataWaistCircumferenceVsBMIByGender}
+                              setHoveredGroup={setHoveredGroupDataWaistCircumferenceVsBMIByGender}
                             />
                         </div>
                     )}

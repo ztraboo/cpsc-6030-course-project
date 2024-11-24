@@ -15,9 +15,9 @@
     opacity: 0.2;
 }
 
-.container.hasHighlight .slice:hover {
+/* .container.hasHighlight .slice:hover {
     filter: saturate(100%);
     opacity: 1;
-}
+} */
 
 

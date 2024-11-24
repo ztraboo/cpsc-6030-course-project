@@ -32,6 +32,8 @@ type D3ScatterplotChartProps = {
         x: number;
         y: number;
         markColorField: string;
+        filterGender: string;
+        seqn: number;
     }[];
     markColorFieldLegendName: string,
     markColorScale: d3.ScaleOrdinal<any, any>;
@@ -43,16 +45,19 @@ type D3ScatterplotChartProps = {
     showYAxis?: boolean;
     legendAlign?: string;
     showLegend?: boolean;
+    hoveredGroup: string | null;
+    setHoveredGroup: Function;
+    interactiveClassName?: string;
 };
 
-const D3ScatterplotChart = ({ height, data, markColorFieldLegendName, markColorScale, xAxisLabel, yAxisLabel, xAxisTicks=30, yAxisTicks=30, showXAxis=true, showYAxis=true, legendAlign="right", showLegend=true }: D3ScatterplotChartProps) => {
+const D3ScatterplotChart = ({ height, data, markColorFieldLegendName, markColorScale, xAxisLabel, yAxisLabel, xAxisTicks=30, yAxisTicks=30, showXAxis=true, showYAxis=true, legendAlign="right", showLegend=true, hoveredGroup, setHoveredGroup, interactiveClassName }: D3ScatterplotChartProps) => {
 
     // Remove the margin spacing when the axis labels are missing to save on space.
     MARGIN.left = (showYAxis === false) ? 0 : 70;
     MARGIN.bottom = (showXAxis === false) ? 0 : 80;
 
     const [hovered, setHovered] = useState<InteractionData | null>(null);
-    const [hoveredGroup, setHoveredGroup] = useState<string | null>(null);
+    // const [hoveredGroup, setHoveredGroup] = useState<string | null>(null); 
 
     const [ref, dms] = useChartDimensions({
         marginTop: MARGIN.top,
@@ -90,7 +95,7 @@ const D3ScatterplotChart = ({ height, data, markColorFieldLegendName, markColorS
     .range([boundsHeight, 0]); // axis y dimensions
 
     const yAxis = d3.axisLeft(yScale);
-  
+
     // Build the shapes (dots)
     const allShapes = data.map((d, i) => {
 
@@ -109,9 +114,8 @@ const D3ScatterplotChart = ({ height, data, markColorFieldLegendName, markColorS
           stroke={markColorScale(d.markColorField)}
           fill={markColorScale(d.markColorField)}
           fillOpacity={0.6}
-          onMouseOver={() => {            
+          onMouseOver={() => {
             setHoveredGroup(d.markColorField);
-
             setHovered({
                 xPos: xScale(d.x),
                 yPos: yScale(d.y),
@@ -128,6 +132,7 @@ const D3ScatterplotChart = ({ height, data, markColorFieldLegendName, markColorS
             setHoveredGroup(null)
             setHovered(null)
           }}
+          data-seqn={d.seqn}
         />
       );
     });
@@ -140,6 +145,8 @@ const D3ScatterplotChart = ({ height, data, markColorFieldLegendName, markColorS
 
     const xAxisPixelsPerTick = boundsWidth / xAxisTicks;
     const yAxisPixelsPerTick = boundsHeight / yAxisTicks;
+
+    let svgClassName = "viz " + interactiveClassName
 
     return(
         <div
@@ -154,7 +161,7 @@ const D3ScatterplotChart = ({ height, data, markColorFieldLegendName, markColorS
                 width={width}
                 height={height}
                 viewBox={`0 0 ${width} ${height}`}
-                className="viz"
+                className={svgClassName}
                 shapeRendering={"crispEdges"}
             >
                 <g
@@ -221,9 +228,7 @@ const D3ScatterplotChart = ({ height, data, markColorFieldLegendName, markColorS
                     {/* X axis - Add separator line, except after the last plot (*/}
                     {!showXAxis && (
                         <>
-                        <svg>
-                            <line x1={0} x2={boundsWidth} y1={boundsHeight} y2={boundsHeight} stroke={"gray"} strokeWidth={1} strokeDasharray={"4, 4"} />
-                        </svg>
+                            <line x1={0} x2={boundsWidth} y1={boundsHeight} y2={boundsHeight} stroke={"gray"} strokeWidth={"4"}  strokeDasharray={"4, 4"} />
                         </>
                     )}
                 </g>
