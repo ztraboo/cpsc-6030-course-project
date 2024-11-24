@@ -43,21 +43,35 @@ d3.csv("dataset.csv").then(function (dataset) {
         .domain(["Yes", "No", "Borderline"])
         .range(["#e31a1c", "#a6cee3", "#1f78b4"]);
 
+    // Update xScale to use logarithmic scaling
     const xScale = d3.scaleLog()
-        .domain([d3.min(dataset, xAccessor) - 1, d3.max(dataset, xAccessor) + 1])
+        .domain([
+            Math.max(0.1, d3.min(dataset, xAccessor)), // Ensure the minimum value > 0
+            d3.max(dataset, xAccessor) + 1,
+        ])
         .range([dimensions.margin.left, dimensions.width - dimensions.margin.right]);
 
+    // Update yScales to use logarithmic scaling
     const yScales = {
         insulin: d3.scaleLog()
-            .domain([0, d3.max(dataset, yAccessors.insulin) + 5])
+            .domain([
+                Math.max(0.1, d3.min(dataset, yAccessors.insulin)), // Ensure the minimum value > 0
+                d3.max(dataset, yAccessors.insulin) + 5,
+            ])
             .range([dimensions.plotHeight - dimensions.margin.bottom, dimensions.margin.top]),
 
         fasting: d3.scaleLog()
-            .domain([0, d3.max(dataset, yAccessors.fasting) + 5])
+            .domain([
+                Math.max(0.1, d3.min(dataset, yAccessors.fasting)), // Ensure the minimum value > 0
+                d3.max(dataset, yAccessors.fasting) + 5,
+            ])
             .range([dimensions.plotHeight - dimensions.margin.bottom, dimensions.margin.top]),
 
         after: d3.scaleLog()
-            .domain([0, d3.max(dataset, yAccessors.after) + 5])
+            .domain([
+                Math.max(0.1, d3.min(dataset, yAccessors.after)), // Ensure the minimum value > 0
+                d3.max(dataset, yAccessors.after) + 5,
+            ])
             .range([dimensions.plotHeight - dimensions.margin.bottom, dimensions.margin.top]),
     };
 
@@ -94,7 +108,7 @@ d3.csv("dataset.csv").then(function (dataset) {
             if (measure === "insulin") {
                 plotGroup.append("g")
                     .attr("transform", `translate(0,${dimensions.plotHeight - dimensions.margin.bottom})`)
-                    .call(d3.axisBottom(xScale))
+                    .call(d3.axisBottom(xScale).ticks(5, "~s")) // Custom ticks for log scale
                     .append("text")
                     .attr("x", dimensions.width / 2)
                     .attr("y", 35)
@@ -106,7 +120,7 @@ d3.csv("dataset.csv").then(function (dataset) {
             // Add Y-axis
             plotGroup.append("g")
                 .attr("transform", `translate(${dimensions.margin.left},0)`)
-                .call(d3.axisLeft(yScale))
+                .call(d3.axisLeft(yScale).ticks(5, "~s")) // Custom ticks for log scale
                 .append("text")
                 .attr("x", -dimensions.plotHeight / 2)
                 .attr("y", -35)
@@ -170,4 +184,35 @@ d3.csv("dataset.csv").then(function (dataset) {
 
         renderScatterPlot(filteredData);
     });
+     // Listen for age-only selection event
+     window.addEventListener("ageOnlySelected", function (event) {
+        const selectedAgeGroup = event.detail.ageGroup;
+
+        // Filter dataset based on the selected age-group
+        const filteredData = dataset.filter(
+            d => d.ageGroup === selectedAgeGroup
+        );
+
+        // Render scatter plots with the filtered data (age-group only)
+        renderScatterPlot(filteredData);
+    });
+    var legend = svg.selectAll(".legend")
+            .data(colorScale.domain())
+            .enter()
+            .append("g")
+            .attr("class", "legend")
+            .attr("transform", (d, i) => `translate(${dimensions.width - 100}, ${i * 20 + 20})`);
+    
+        legend.append("rect")
+            .attr("x", -5)
+            .attr("width", 10)
+            .attr("height", 10)
+            .style("fill", colorScale);
+    
+        legend.append("text")
+            .attr("x", 15)
+            .attr("y", 5)
+            .attr("dy", ".35em")
+            .style("font-size", "12px")
+            .text(d => d);
 });
