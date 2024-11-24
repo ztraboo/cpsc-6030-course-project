@@ -127,7 +127,7 @@ d3.csv("dataset.csv").then(function (dataset) {
                 .attr("fill", "black")
                 .attr("transform", "rotate(-90)")
                 .style("text-anchor", "middle")
-                .text(measure === "insulin" ? "Insulin Level" : (measure === "fasting" ? "Fasting Blood Glucose" : "2-Hour Postprandial Blood Glucose"));
+                .text(measure === "insulin" ? "Insulin Level (uIU/mL)" : (measure === "fasting" ? "Fasting Blood Glucose (mg/dL)" : "2-Hour Postprandial Blood Glucose (mg/dL)"));
 
             // Plot data points for each measure with colors based on diabetes status
             plotGroup.selectAll("circle")
