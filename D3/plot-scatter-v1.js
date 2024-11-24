@@ -43,20 +43,20 @@ d3.csv("dataset.csv").then(function (dataset) {
         .domain(["Yes", "No", "Borderline"])
         .range(["#e31a1c", "#a6cee3", "#1f78b4"]);
 
-    const xScale = d3.scaleLog()
+    const xScale = d3.scaleLinear()
         .domain([d3.min(dataset, xAccessor) - 1, d3.max(dataset, xAccessor) + 1])
         .range([dimensions.margin.left, dimensions.width - dimensions.margin.right]);
 
     const yScales = {
-        insulin: d3.scaleLog()
+        insulin: d3.scaleLinear()
             .domain([0, d3.max(dataset, yAccessors.insulin) + 5])
             .range([dimensions.plotHeight - dimensions.margin.bottom, dimensions.margin.top]),
 
-        fasting: d3.scaleLog()
+        fasting: d3.scaleLinear()
             .domain([0, d3.max(dataset, yAccessors.fasting) + 5])
             .range([dimensions.plotHeight - dimensions.margin.bottom, dimensions.margin.top]),
 
-        after: d3.scaleLog()
+        after: d3.scaleLinear()
             .domain([0, d3.max(dataset, yAccessors.after) + 5])
             .range([dimensions.plotHeight - dimensions.margin.bottom, dimensions.margin.top]),
     };
