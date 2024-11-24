@@ -93,6 +93,7 @@ function App() {
               [ "seqn", parseInt(participant["Seqn"]) ],
               [ "age", parseFloat(participant["Age"]) ],
               [ "exercise", participant["Paq605 ( Vigorous Exercise)"] ],
+              [ "gender", participant["Gender"] ]
             ]
           ) 
         })
@@ -108,21 +109,26 @@ function App() {
         }
         
         // Aggregate data by age and exercise level
-        const ageGroupExerciseCounts = d3.rollup(
+        const ageGroupExerciseCounts: any = d3.rollup(
           dataBarAgeVsExercise,
             (v) => v.length, // Count participants
             (d) => getAgeGroup(d.age), // Group by Age Group
-            (d) => d.exercise // Group by Exercise Level
+            (d) => d.exercise, // Group by Exercise Level
+            (d) => d.gender
         );
 
         // console.log(ageGroupExerciseCounts);
 
         // Convert the data into an array of objects for easy stacking
-        const formattedData = Array.from(ageGroupExerciseCounts, ([ageGroup, exerciseMap]) => {
-            const entry = { AgeGroup: ageGroup, No: 0, Vigorous: 0 };
-            exerciseMap.forEach((count, exercise) => {
-                if (exercise === "No") entry.No = count;
-                else if (exercise === "Vigorous") entry.Vigorous = count;
+        const formattedData = Array.from(ageGroupExerciseCounts, ([ageGroup, exerciseMap, genderMap]) => {
+            const entry = { 
+              AgeGroup: ageGroup,
+              No: 0,
+              Vigorous: 0
+            };
+            exerciseMap.forEach((count: any, exercise: any) => {
+                if (exercise === "No") entry["No"] = count;
+                else if (exercise === "Vigorous") entry["Vigorous"] = count;
             });
             return entry;
         });
@@ -130,12 +136,20 @@ function App() {
 
         setBarChartDataAgeVsExerciseLevel(
           formattedData
-          .map((entry: any) => {            
+          .map((entry: any) => {    
+            let noCount = 0;
+            entry["No"].forEach((currentValue: number) => noCount += currentValue);
+            let vigorousCount = 0;
+            entry["Vigorous"].forEach((currentValue: number) => vigorousCount += currentValue);
             return Object.fromEntries(
               [ 
                 [ "ageGroup", entry["AgeGroup"] ],
-                [ "groupExerciseLevelNo", entry["No"] ],
-                [ "groupExerciseLevelVigorous", entry["Vigorous"] ]
+                [ "groupExerciseLevelNo", noCount ],
+                [ "groupExerciseLevelNoMale", entry["No"].get("Male") ],
+                [ "groupExerciseLevelNoFemale", entry["No"].get("Female") ],
+                [ "groupExerciseLevelVigorous", vigorousCount ],
+                [ "groupExerciseLevelVigorousMale", entry["Vigorous"].get("Male") ],
+                [ "groupExerciseLevelVigorousFemale", entry["Vigorous"].get("Female") ],
               ]
             ) 
           })

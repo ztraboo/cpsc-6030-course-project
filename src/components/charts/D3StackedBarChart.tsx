@@ -128,8 +128,22 @@ const D3StackedBarChart = ({
     // ref={ref as MutableRefObject<HTMLDivElement>}
     const rectangles = series.map((subgroup, i) => {
         return (
-            <g key={i}>
+            <g id={"barSubgroup" + i} className={["barSubgroup"].join(" ")} key={i}>
                 {subgroup.map((group, j) => {
+                    let dataExerciseLevel = 0;
+                    let dataExerciseLevelMale = 0;
+                    let dataExerciseLevelFemale = 0;
+
+                    if (subgroup.key === "No") {
+                        dataExerciseLevel = group.data.No
+                        dataExerciseLevelMale = group.data.NoMale;
+                        dataExerciseLevelFemale = group.data.NoFemale;
+                    } else if (subgroup.key === "Vigorous") {
+                        dataExerciseLevel = group.data.Vigorous
+                        dataExerciseLevelMale = group.data.VigorousMale;
+                        dataExerciseLevelFemale = group.data.VigorousFemale;
+                    }
+
                     return (
                         <rect
                             key={j}
@@ -145,6 +159,14 @@ const D3StackedBarChart = ({
                             onMouseLeave={() => {
                                 // setHovered(null);
                             }}
+                            data-x={xScale(group[0])}
+                            data-agegroup={group.data.x.toString()}
+                            data-execlevel={dataExerciseLevel}
+                            data-execlevel-xscale={xScale(dataExerciseLevel)}
+                            data-execlevel-male={dataExerciseLevelMale}
+                            data-execlevel-male-xscale={xScale(dataExerciseLevelMale)}
+                            data-execlevel-female={dataExerciseLevelFemale}
+                            data-execlevel-female-xscale={xScale(dataExerciseLevelFemale)}
                         ></rect>
                     );
                 })}
@@ -156,7 +178,7 @@ const D3StackedBarChart = ({
         return null;
     };
     
-    const legendOffsetX = (legendAlign === "right" ? boundsWidth - 140 : 0 );
+    const legendOffsetX = (legendAlign === "right" ? boundsWidth - 115 : 0 );
 
     const xAxisPixelsPerTick = boundsWidth / xAxisTicks;
     const yAxisPixelsPerTick = boundsHeight / yAxisTicks;

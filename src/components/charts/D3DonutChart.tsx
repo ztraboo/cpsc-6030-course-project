@@ -91,7 +91,7 @@ const D3DonutChart = ({ width, height, data, showPercentages, markColorScale, on
 
                 // Handle interactions passed for slick click for other charts.
                 onSliceClick.forEach((func) => {
-                    func(toggledSlice, grp.data.seqnIdentifiers);
+                    func(toggledSlice, grp.data.seqnIdentifiers, grp.data.name);
                 });
 
                 if (toggledSlice) {
