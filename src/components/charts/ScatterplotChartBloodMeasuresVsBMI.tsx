@@ -17,9 +17,10 @@ type ScatterplotChartBloodMeasuresVsBMIProps = {
     }[];
     hoveredGroup: string | null;
     setHoveredGroup: Function;
+    onPointClick: Array<Function> | [];
 };
 
-const ScatterplotChartBloodMeasuresVsBMI = ({ height, data, hoveredGroup, setHoveredGroup }: ScatterplotChartBloodMeasuresVsBMIProps) => {
+const ScatterplotChartBloodMeasuresVsBMI = ({ height, data, hoveredGroup, setHoveredGroup, onPointClick }: ScatterplotChartBloodMeasuresVsBMIProps) => {
 
     // data.map(d => console.log(d));
 
@@ -67,7 +68,7 @@ const ScatterplotChartBloodMeasuresVsBMI = ({ height, data, hoveredGroup, setHov
             hoveredGroup={hoveredGroup}
             setHoveredGroup={setHoveredGroup}
             interactiveClassName={"chart-1"}
-            
+            onPointClick={onPointClick}
         />
         <D3ScatterPlotChart
             height={height}
@@ -82,6 +83,7 @@ const ScatterplotChartBloodMeasuresVsBMI = ({ height, data, hoveredGroup, setHov
             hoveredGroup={hoveredGroup}
             setHoveredGroup={setHoveredGroup}
             interactiveClassName={"chart-2"}
+            onPointClick={onPointClick}
         />
         <D3ScatterPlotChart
             height={height+70}
@@ -96,6 +98,7 @@ const ScatterplotChartBloodMeasuresVsBMI = ({ height, data, hoveredGroup, setHov
             hoveredGroup={hoveredGroup}
             setHoveredGroup={setHoveredGroup}
             interactiveClassName={"chart-3"}
+            onPointClick={onPointClick}
         />
         </>
     );

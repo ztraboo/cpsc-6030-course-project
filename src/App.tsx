@@ -18,6 +18,7 @@ import StackedBarChartAgeVsExercise from "./components/charts/StackedBarChartAge
 
 // Import interactions
 import { onDonutChartGenderSliceClick } from "./interactions/InteractionsDonutChartGender";
+import { onScatterplotChartBloodMeasuresVsBMIClick } from "./interactions/InteractionsScatterplotChartBloodMeasuresVsBMI";
 
 // interface DataItemAgeVsExercise {
 //   Age: number;
@@ -309,6 +310,7 @@ function App() {
                                 data={scatterplotChartDataBloodMeasuresVsBMI}
                                 hoveredGroup={hoveredGroupDataDataBloodMeasuresVsBMI}
                                 setHoveredGroup={setHoveredGroupDataDataBloodMeasuresVsBMI}
+                                onPointClick={[onScatterplotChartBloodMeasuresVsBMIClick]}
                               />
                           </div>
                       )}
@@ -360,6 +362,7 @@ function App() {
                               data={scatterplotChartDataWaistCircumferenceVsBMI}
                               hoveredGroup={hoveredGroupDataWaistCircumferenceVsBMIByGender}
                               setHoveredGroup={setHoveredGroupDataWaistCircumferenceVsBMIByGender}
+                              onPointClick={[]}
                             />
                         </div>
                     )}

@@ -63,7 +63,7 @@ const D3DonutChart = ({ width, height, data, showPercentages, markColorScale, on
         const inflexionPoint = arcGenerator.centroid(inflexionInfo);
 
         const isRightLabel = inflexionPoint[0] > 0;
-        const labelPosX = inflexionPoint[0] + 50 * (isRightLabel ? 1 : -1);
+        const labelPosX = inflexionPoint[0] + 25 * (isRightLabel ? 1 : -1);
         const textAnchor = isRightLabel ? "start" : "end";
         const label = 
             grp.data.name + 
@@ -89,7 +89,7 @@ const D3DonutChart = ({ width, height, data, showPercentages, markColorScale, on
                 // console.log("toggledSlice = " + toggledSlice);
                 setToggledSlice(!toggledSlice);
 
-                // Handle interactions passed for slick click for other charts.
+                // Handle interactions passed for slice click for other charts.
                 onSliceClick.forEach((func) => {
                     func(toggledSlice, grp.data.seqnIdentifiers, grp.data.name);
                 });

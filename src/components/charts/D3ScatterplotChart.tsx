@@ -48,9 +48,12 @@ type D3ScatterplotChartProps = {
     hoveredGroup: string | null;
     setHoveredGroup: Function;
     interactiveClassName?: string;
+    onPointClick: Array<Function> | [];
 };
 
-const D3ScatterplotChart = ({ height, data, markColorFieldLegendName, markColorScale, xAxisLabel, yAxisLabel, xAxisTicks=30, yAxisTicks=30, showXAxis=true, showYAxis=true, legendAlign="right", showLegend=true, hoveredGroup, setHoveredGroup, interactiveClassName }: D3ScatterplotChartProps) => {
+const D3ScatterplotChart = ({ height, data, markColorFieldLegendName, markColorScale, xAxisLabel, yAxisLabel, xAxisTicks=30, yAxisTicks=30, showXAxis=true, showYAxis=true, legendAlign="right", showLegend=true, hoveredGroup, setHoveredGroup, interactiveClassName, onPointClick }: D3ScatterplotChartProps) => {
+
+    const [toggledPoint, setToggledPoint] = useState(false);
 
     // Remove the margin spacing when the axis labels are missing to save on space.
     MARGIN.left = (showYAxis === false) ? 0 : 70;
@@ -132,6 +135,15 @@ const D3ScatterplotChart = ({ height, data, markColorFieldLegendName, markColorS
             setHoveredGroup(null)
             setHovered(null)
           }}
+          onClick={(x) => {
+            setToggledPoint(!toggledPoint);
+
+            // Handle interactions passed for point click for other blood measure charts.
+            onPointClick.forEach((func) => {
+                func(toggledPoint, d, markColorScale, xScale, yScale);
+            });
+
+          }}
           data-seqn={d.seqn}
         />
       );
@@ -163,6 +175,7 @@ const D3ScatterplotChart = ({ height, data, markColorFieldLegendName, markColorS
                 viewBox={`0 0 ${width} ${height}`}
                 className={svgClassName}
                 shapeRendering={"crispEdges"}
+                overflow={"visible"}
             >
                 <g
                     width={boundsWidth}
@@ -228,7 +241,7 @@ const D3ScatterplotChart = ({ height, data, markColorFieldLegendName, markColorS
                     {/* X axis - Add separator line, except after the last plot (*/}
                     {!showXAxis && (
                         <>
-                            <line x1={0} x2={boundsWidth} y1={boundsHeight} y2={boundsHeight} stroke={"gray"} strokeWidth={"4"}  strokeDasharray={"4, 4"} />
+                            <line x1={0} x2={boundsWidth} y1={boundsHeight} y2={boundsHeight} stroke={"gray"} strokeWidth={"2"}  strokeDasharray={"4, 4"} />
                         </>
                     )}
                 </g>

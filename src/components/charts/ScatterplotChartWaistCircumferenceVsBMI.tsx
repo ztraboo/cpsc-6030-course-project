@@ -15,9 +15,10 @@ type ScatterplotChartWaistCircumferenceVsBMIProps = {
     }[];
     hoveredGroup: string | null;
     setHoveredGroup: Function;
+    onPointClick: Array<Function> | [];
 };
 
-const ScatterplotChartWaistCircumferenceVsBMI = ({ height, data, hoveredGroup, setHoveredGroup }: ScatterplotChartWaistCircumferenceVsBMIProps) => {
+const ScatterplotChartWaistCircumferenceVsBMI = ({ height, data, hoveredGroup, setHoveredGroup, onPointClick }: ScatterplotChartWaistCircumferenceVsBMIProps) => {
 
     // data.map(d => console.log(d));
 
@@ -45,6 +46,7 @@ const ScatterplotChartWaistCircumferenceVsBMI = ({ height, data, hoveredGroup, s
             legendAlign="left"
             hoveredGroup={hoveredGroup}
             setHoveredGroup={setHoveredGroup}
+            onPointClick={onPointClick}
         />
         </>
     );
