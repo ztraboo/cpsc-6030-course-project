@@ -75,8 +75,8 @@ d3.csv("dataset.csv").then(function (dataset) {
     
 
     const svg = d3.select("#chart1")
-        .style("width", dimensions.width)
-        .style("height", dimensions.height);
+        .attr("width", dimensions.width)
+        .attr("height", dimensions.height);
 
     function renderScatterPlot(filteredData) {
         // Clear existing points
