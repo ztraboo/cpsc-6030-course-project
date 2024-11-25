@@ -120,7 +120,7 @@ export function onDonutChartGenderSliceClick(toggledSlice: boolean, selectedSeqn
                     d3
                     .select(".bar-chart-age-vs-exercise-level")
                     .select("#barSubgroup0")
-                    .select("[data-agegroup='≤17']")
+                    .select("[data-agegroup='" + this.dataset.agegroup + "']")
                     .attr("x");
     
                 let barSubgroup0Width = 
