@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, MutableRefObject } from "react";
+import { useEffect, useMemo, useRef, useState, MutableRefObject, forwardRef, useImperativeHandle } from "react";
 import * as d3 from "d3";
 
 import useChartDimensions from "../../hooks/useChartDimensions";
@@ -34,34 +34,31 @@ type D3StackedBarplotChartProps = {
   markColorScale: d3.ScaleOrdinal<any, any>;
   xAxisLabel: string;
   yAxisLabel: string;
-  xAxisTicks?: number;
-  yAxisTicks?: number;
-  showXAxis?: boolean;
-  showYAxis?: boolean;
-  legendAlign?: string;
-  showLegend?: boolean;
+  xAxisTicks?: number | 30;
+  yAxisTicks?: number | 30;
+  showXAxis?: boolean | true;
+  showYAxis?: boolean | true;
+  legendAlign?: string | "right";
+  showLegend?: boolean | true;
+  genderDonutChartSliceName: string;
 };
 
-const D3StackedBarChart = ({
-  height,
-  allGroups,
-  allSubgroups,
-  data,
-  domainCountMax,
-  markColorFieldLegendName,
-  markColorScale,
-  xAxisLabel,
-  yAxisLabel,
-  xAxisTicks=30,
-  yAxisTicks=30,
-  showXAxis=true,
-  showYAxis=true,
-  legendAlign="right",
-  showLegend=true 
-}: D3StackedBarplotChartProps) => {
+interface D3StackedBarChartRef {
+    onGenderSliceClick: () => void;
+};
+
+const D3StackedBarChart = forwardRef<D3StackedBarChartRef, D3StackedBarplotChartProps>((props, ref) => {
+    // Set defaults for optional parameters
+    let xAxisTicks = props.xAxisTicks ?? 30;
+    let yAxisTicks = props.yAxisTicks ?? 30;
+    let showXAxis = props.showXAxis ?? true;
+    let showYAxis = props.showYAxis ?? true;
+    let legendAlign = props.legendAlign ?? "right";
+    let showLegend = props.showLegend ?? true;
+
     const axesRef = useRef(null);
 
-    const [ref, dms] = useChartDimensions({
+    const [refChart, dms] = useChartDimensions({
     marginTop: MARGIN.top,
     marginBottom: MARGIN.bottom,
     marginLeft: MARGIN.left,
@@ -78,7 +75,7 @@ const D3StackedBarChart = ({
     // The bounds (=area inside the axis) is calculated by substracting the margins
     // @ts-expect-error
     const boundsWidth = dms.width - MARGIN.right - MARGIN.left;
-    const boundsHeight = height - MARGIN.top - MARGIN.bottom;
+    const boundsHeight = props.height - MARGIN.top - MARGIN.bottom;
 
     // Property 'width' does not exist on type 'MutableRefObject<undefined>'.
     // @ts-expect-error
@@ -86,44 +83,26 @@ const D3StackedBarChart = ({
 
     // Define the stack generator
     const stackGenerator = d3.stack()
-        .keys(allSubgroups);
+        .keys(props.allSubgroups);
 
-    const series = stackGenerator(data);
-
-    // // Y axis
-    // const max = 900; // todo
-    // const yScale = useMemo(() => {
-    // return d3
-    //     .scaleLinear()
-    //     .domain([0, max || 0])
-    //     .range([boundsHeight, 0]);
-    // }, [data, height]);
-
-    // // X axis
-    // const xScale = useMemo(() => {
-    // return d3
-    //     .scaleBand<string>()
-    //     .domain(allGroups)
-    //     .range([0, boundsWidth])
-    //     .padding(0.05);
-    // }, [data, width]);
+    const series = stackGenerator(props.data);
 
     // Create the vertical scale and its axis generators.
     const yScale = useMemo(() => {
     return d3
         .scaleBand<string>()
-        .domain(allGroups)
+        .domain(props.allGroups)
         .range([0, boundsHeight])
         .padding(0.2);
-    }, [data, height]);
+    }, [props.data, props.height]);
 
     // Create the horizontal scale and its axis generators.
     const xScale = useMemo(() => {
     return d3
         .scaleLinear()
-        .domain([0, domainCountMax + 10])
+        .domain([0, props.domainCountMax + 10])
         .range([0, boundsWidth]);
-    }, [data, width]);
+    }, [props.data, width]);
 
     // ref={ref as MutableRefObject<HTMLDivElement>}
     const rectangles = series.map((subgroup, i) => {
@@ -144,6 +123,19 @@ const D3StackedBarChart = ({
                         dataExerciseLevelFemale = group.data.VigorousFemale;
                     }
 
+                    // Adjust tooltip count values based on gender slice selection.
+                    let tooltipExerciseLevelCount: number = 0;
+                    switch (props.genderDonutChartSliceName.toLowerCase()) {
+                        case "female":
+                            tooltipExerciseLevelCount = dataExerciseLevelFemale;
+                            break;
+                        case "male":
+                            tooltipExerciseLevelCount = dataExerciseLevelMale;
+                            break;
+                        default:
+                            tooltipExerciseLevelCount = dataExerciseLevel;
+                    }
+
                     return (
                         <rect
                             key={j}
@@ -151,13 +143,24 @@ const D3StackedBarChart = ({
                             y={yScale(group.data.x.toString())}
                             height={yScale.bandwidth()}
                             width={xScale(group[1]) - xScale(group[0])}
-                            fill={markColorScale(subgroup.key)}
+                            fill={props.markColorScale(subgroup.key)}
                             opacity={0.9}
                             onMouseOver={() => {
-                                // setHovered(null);
+                                setHovered({
+                                    xPos: xScale(group[0]),
+                                    yPos: yScale(group.data.x.toString()),
+                                    markColorScale: props.markColorScale,
+                                    markColorFieldLegendName: props.markColorFieldLegendName,
+                                    markColorField: subgroup.key,
+                                    xAxisLabel: props.xAxisLabel,
+                                    xAxisValue: tooltipExerciseLevelCount,
+                                    yAxisLabel: props.yAxisLabel,
+                                    yAxisValue: group.data.x
+                                  });
                             }}
                             onMouseLeave={() => {
-                                // setHovered(null);
+                                setHovered(null);
+                                
                             }}
                             data-x={xScale(group[0])}
                             data-agegroup={group.data.x.toString()}
@@ -185,17 +188,17 @@ const D3StackedBarChart = ({
 
     return (
         <div
-            ref={ref as MutableRefObject<HTMLDivElement>}
+            ref={refChart as MutableRefObject<HTMLDivElement>}
             style={{
-                height, 
+                height: `${props.height}`, 
                 position: "relative"
             }}
             className="container"
         >
             <svg 
                 width={width}
-                height={height}
-                viewBox={`0 0 ${width} ${height}`}
+                height={props.height}
+                viewBox={`0 0 ${width} ${props.height}`}
                 className="viz"
                 shapeRendering={"crispEdges"}
             >
@@ -211,7 +214,7 @@ const D3StackedBarChart = ({
                 {/* legend */}
                 {showLegend && (
                     <svg className="legend" overflow={"visible"}>
-                        <Swatches markColorScale={markColorScale} onSelect={handleSwatchSelect} legendOffsetX={legendOffsetX} />
+                        <Swatches markColorScale={props.markColorScale} onSelect={handleSwatchSelect} legendOffsetX={legendOffsetX} />
                     </svg>
                 )}
 
@@ -236,7 +239,7 @@ const D3StackedBarChart = ({
                         style={{textAnchor: "start", fontWeight: "normal"}}
                         transform={"rotate(0)"}
                     >
-                        {yAxisLabel}
+                        {props.yAxisLabel}
                     </text>
                 </g>
                 </>
@@ -256,7 +259,7 @@ const D3StackedBarChart = ({
                         x={boundsWidth / 2}
                         style={{textAnchor: "middle", fontWeight: "normal"}}
                     >
-                        {xAxisLabel}
+                        {props.xAxisLabel}
                     </text>
                 </g>
                 </>
@@ -270,8 +273,8 @@ const D3StackedBarChart = ({
                 width: boundsWidth,
                 height: boundsHeight,
                 position: "absolute",
-                top: 0,
-                left: 0,
+                top: -50,
+                left: -200,
                 pointerEvents: "none",
                 marginLeft: MARGIN.left,
                 marginTop: MARGIN.top,
@@ -281,6 +284,6 @@ const D3StackedBarChart = ({
             </div>
         </div>
     );
-};
+});
 
 export default D3StackedBarChart;

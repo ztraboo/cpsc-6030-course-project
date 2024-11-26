@@ -262,6 +262,16 @@ function App() {
     }
   }, []);
 
+
+  const chartRefAgeVsExercise: any = useRef();
+
+  // Update Physical Workout vs. Age tooltip when Donut Gender chart slice is selected.
+  const updateTooltipForPhysicalWorkoutVsAge = (toggledSlice: boolean, selectedSeqnIdentifiers: Set<number>, sliceName: string) => {
+    if (chartRefAgeVsExercise.current !== undefined) {
+      chartRefAgeVsExercise.current.onDonutChartGenderSliceClick(toggledSlice, sliceName);
+    } 
+  };
+
   return (
     <div className="App">
         {isLoading && (
@@ -336,7 +346,10 @@ function App() {
                               data={donutChartDataGender}
                               onUpdateParticipantCount={setParticipantCount}
                               onFilterByGender={setHoveredGroupDataWaistCircumferenceVsBMIByGender}
-                              onSliceClick={[onDonutChartGenderSliceClick]}
+                              onSliceClick={[
+                                onDonutChartGenderSliceClick,
+                                updateTooltipForPhysicalWorkoutVsAge
+                              ]}
                             />
                         </div>
                       )}
@@ -348,6 +361,7 @@ function App() {
                               <StackedBarChartAgeVsExercise
                                 height={328}
                                 data={barChartDataAgeVsExerciseLevel}
+                                ref={chartRefAgeVsExercise}
                               />
                           </div>
                       )}
