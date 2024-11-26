@@ -27,7 +27,7 @@ const INFLEXION_PADDING = 20; // space between donut and label inflexion point
 
 const D3DonutChart = ({ width, height, data, showPercentages, markColorScale, onUpdateParticipantCount, onFilterByGender, onSliceClick }: D3DonutChartProps) => {
     const [participantCount, setParticipantCount] = useState(0);
-    const [toggledSlice, setToggledSlice] = useState(false);
+    let [toggledSlice, setToggledSlice] = useState(false);
     
     const ref = useRef<SVGGElement>(null);
     const refParent = useRef<HTMLDivElement>(null); // Todo: Need to revisit this on responsive sizing.
@@ -87,7 +87,11 @@ const D3DonutChart = ({ width, height, data, showPercentages, markColorScale, on
             }}
             onClick={(s) => {
                 // console.log("toggledSlice = " + toggledSlice);
+                
                 setToggledSlice(!toggledSlice);
+                // Need to ensure that the toggledSlice gets applied in this onClick event.
+                // Typically the setToggledSlice useState setter update will only be applied in a useEffect call.
+                toggledSlice = !toggledSlice;
 
                 // Handle interactions passed for slice click for other charts.
                 onSliceClick.forEach((func) => {
