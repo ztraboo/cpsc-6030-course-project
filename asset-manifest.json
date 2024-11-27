@@ -1,16 +1,16 @@
 {
   "files": {
-    "main.css": "/cpsc-6030-course-project/static/css/main.4a2f7a11.css",
-    "main.js": "/cpsc-6030-course-project/static/js/main.5773281d.js",
+    "main.css": "/cpsc-6030-course-project/static/css/main.2dc60213.css",
+    "main.js": "/cpsc-6030-course-project/static/js/main.f8c1880c.js",
     "static/js/453.2e69275a.chunk.js": "/cpsc-6030-course-project/static/js/453.2e69275a.chunk.js",
     "static/media/logo.svg": "/cpsc-6030-course-project/static/media/logo.6ce24c58023cc2f8fd88fe9d219db6c6.svg",
     "index.html": "/cpsc-6030-course-project/index.html",
-    "main.4a2f7a11.css.map": "/cpsc-6030-course-project/static/css/main.4a2f7a11.css.map",
-    "main.5773281d.js.map": "/cpsc-6030-course-project/static/js/main.5773281d.js.map",
+    "main.2dc60213.css.map": "/cpsc-6030-course-project/static/css/main.2dc60213.css.map",
+    "main.f8c1880c.js.map": "/cpsc-6030-course-project/static/js/main.f8c1880c.js.map",
     "453.2e69275a.chunk.js.map": "/cpsc-6030-course-project/static/js/453.2e69275a.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.4a2f7a11.css",
-    "static/js/main.5773281d.js"
+    "static/css/main.2dc60213.css",
+    "static/js/main.f8c1880c.js"
   ]
 }
