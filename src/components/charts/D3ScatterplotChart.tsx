@@ -26,7 +26,7 @@ let MARGIN: {
         left: 70 
     };
 
-type D3ScatterplotChartProps = {
+interface D3ScatterplotChartProps {
     height: number;
     data: { 
         x: number;
@@ -79,22 +79,24 @@ const D3ScatterplotChart = ({ height, data, markColorFieldLegendName, markColorS
     // @ts-expect-error
     const width = dms.width;
     
-    // Create the horizontal scale and its axis generator.
     const xScale = d3
-    .scaleLinear()
+    .scaleLog()
     .domain([
-        (d3.min(data, (d) => d.x) as number) - 1,
+        Math.max(0.1, (d3.min(data, (d) => d.x) as number) - 1), // Ensure the minimum value > 0
         (d3.max(data, (d) => d.x) as number) + 5
     ]) // data points for x
+    // .nice()
     .range([0, boundsWidth]); // axis x dimensions
 
     const xAxis = d3.axisBottom(xScale).tickSizeOuter(0);
 
-    // Create the vertical scale and its axis generator.
     const yScale = d3
-    .scaleLinear()
-    .domain([0, (d3.max(data, (d) => d.y) as number) + 5]) // data points for y
-    .nice()
+    .scaleLog()
+    .domain([
+        Math.max(0.1, (d3.min(data, (d) => d.y) as number) - 1), // Ensure the minimum value > 0
+        (d3.max(data, (d) => d.y) as number) + 5
+    ]) // data points for y
+    // .nice()
     .range([boundsHeight, 0]); // axis y dimensions
 
     const yAxis = d3.axisLeft(yScale);
@@ -118,7 +120,7 @@ const D3ScatterplotChart = ({ height, data, markColorFieldLegendName, markColorS
           fill={markColorScale(d.markColorField)}
           fillOpacity={0.6}
           onMouseOver={() => {
-            setHoveredGroup(d.markColorField);
+            // setHoveredGroup(d.markColorField);
             setHovered({
                 xPos: xScale(d.x),
                 yPos: yScale(d.y),
@@ -132,7 +134,7 @@ const D3ScatterplotChart = ({ height, data, markColorFieldLegendName, markColorS
               });
           }}
           onMouseLeave={() => { 
-            setHoveredGroup(null)
+            // setHoveredGroup(null)
             setHovered(null)
           }}
           onClick={(x) => {

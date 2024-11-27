@@ -20,6 +20,8 @@ interface StackedBarChartAgeVsExerciseProps {
         groupExerciseLevelVigorousMale: number;
         groupExerciseLevelVigorousFemale: number;
     }[];
+    onExerciseLevelClick: Array<Function> | [];
+    onAgeGroupClick: Array<Function> | [];
 };
 
 interface StackedBarChartAgeVsExerciseRef {
@@ -78,6 +80,7 @@ const StackedBarChartAgeVsExercise = forwardRef<StackedBarChartAgeVsExerciseRef,
             showXAxis={true}
             showYAxis={true}
             genderDonutChartSliceName={genderDonutChartSliceName}
+            onExerciseLevelClick={props.onExerciseLevelClick}
             ref={chartRefD3StackedBarChart}
         />
         </>

@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, useState, MutableRefObject, forwardRef, useImperativeHandle } from "react";
 import * as d3 from "d3";
 
+import styles from "./stackedbar.module.css";
+
 import useChartDimensions from "../../hooks/useChartDimensions";
 import { StripGenerator } from "./StripGenerator";
 import { AxisBottom } from "../axis/AxisBottom";
@@ -41,6 +43,8 @@ type D3StackedBarplotChartProps = {
   legendAlign?: string | "right";
   showLegend?: boolean | true;
   genderDonutChartSliceName: string;
+  onExerciseLevelClick?: Array<Function> | [];
+  onAgeGroupClick?: Array<Function> | [];
 };
 
 interface D3StackedBarChartRef {
@@ -57,6 +61,8 @@ const D3StackedBarChart = forwardRef<D3StackedBarChartRef, D3StackedBarplotChart
     let showLegend = props.showLegend ?? true;
 
     const axesRef = useRef(null);
+
+    const [toggledBarSubgroup, setToggledBarSubgroup] = useState(false);
 
     const [refChart, dms] = useChartDimensions({
     marginTop: MARGIN.top,
@@ -136,11 +142,19 @@ const D3StackedBarChart = forwardRef<D3StackedBarChartRef, D3StackedBarplotChart
                             tooltipExerciseLevelCount = dataExerciseLevel;
                     }
 
+                    // const className = // class if the rect depends on the hover state
+                    //     hoveredGroup && d.markColorField !== hoveredGroup
+                    //     ? styles.stackedbarRect + " " + styles.dimmed
+                    //     : styles.stackedbarRect;
+
+                    const className = styles.stackedbarRect;
+                        
                     return (
                         <rect
                             key={j}
                             x={xScale(group[0])}
                             y={yScale(group.data.x.toString())}
+                            className={className}
                             height={yScale.bandwidth()}
                             width={xScale(group[1]) - xScale(group[0])}
                             fill={props.markColorScale(subgroup.key)}
@@ -160,7 +174,26 @@ const D3StackedBarChart = forwardRef<D3StackedBarChartRef, D3StackedBarplotChart
                             }}
                             onMouseLeave={() => {
                                 setHovered(null);
-                                
+                            }}
+                            onClick={(x) => {
+                                setToggledBarSubgroup(!toggledBarSubgroup);
+
+                                if (!toggledBarSubgroup) {
+                                    // Disable all previously activated bars.
+                                    d3
+                                    .select(".bar-chart-age-vs-exercise-level")
+                                    .selectAll("[data-selected-bar='true']")
+                                        .attr("data-selected-bar", "false");
+
+                                    // Enable the currently selected bar.
+                                    x.currentTarget.setAttribute("data-selected-bar", "true");
+                                } else {
+                                    x.currentTarget.setAttribute("data-selected-bar", "false");
+                                }
+
+                                props.onExerciseLevelClick?.forEach((func) => {
+                                    func(!toggledBarSubgroup, group, subgroup);
+                                });
                             }}
                             data-x={xScale(group[0])}
                             data-agegroup={group.data.x.toString()}
@@ -170,6 +203,7 @@ const D3StackedBarChart = forwardRef<D3StackedBarChartRef, D3StackedBarplotChart
                             data-execlevel-male-xscale={xScale(dataExerciseLevelMale)}
                             data-execlevel-female={dataExerciseLevelFemale}
                             data-execlevel-female-xscale={xScale(dataExerciseLevelFemale)}
+                            data-selected-bar={false}
                         ></rect>
                     );
                 })}
