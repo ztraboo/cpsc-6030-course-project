@@ -43,8 +43,8 @@ type D3StackedBarplotChartProps = {
   legendAlign?: string | "right";
   showLegend?: boolean | true;
   genderDonutChartSliceName: string;
-  onExerciseLevelClick?: Array<Function> | [];
-  onAgeGroupClick?: Array<Function> | [];
+  onSubGroupClick?: Array<Function> | [];
+  onGroupClick?: Array<Function> | [];
 };
 
 interface D3StackedBarChartRef {
@@ -60,8 +60,10 @@ const D3StackedBarChart = forwardRef<D3StackedBarChartRef, D3StackedBarplotChart
     let legendAlign = props.legendAlign ?? "right";
     let showLegend = props.showLegend ?? true;
 
+    const innerRef = useRef();
     const axesRef = useRef(null);
 
+    const [toggledBarGroup, setToggledBarGroup] = useState(false);
     const [toggledBarSubgroup, setToggledBarSubgroup] = useState(false);
 
     const [refChart, dms] = useChartDimensions({
@@ -109,6 +111,8 @@ const D3StackedBarChart = forwardRef<D3StackedBarChartRef, D3StackedBarplotChart
         .domain([0, props.domainCountMax + 10])
         .range([0, boundsWidth]);
     }, [props.data, width]);
+
+    const axisLeftAgeGroup: any = useRef();
 
     // ref={ref as MutableRefObject<HTMLDivElement>}
     const rectangles = series.map((subgroup, i) => {
@@ -191,9 +195,12 @@ const D3StackedBarChart = forwardRef<D3StackedBarChartRef, D3StackedBarplotChart
                                     x.currentTarget.setAttribute("data-selected-bar", "false");
                                 }
 
-                                props.onExerciseLevelClick?.forEach((func) => {
+                                props.onSubGroupClick?.forEach((func) => {
                                     func(!toggledBarSubgroup, group, subgroup);
                                 });
+
+                                axisLeftAgeGroup.current.toggleAxisLabel(false);
+                                setToggledBarGroup(false);
                             }}
                             data-x={xScale(group[0])}
                             data-agegroup={group.data.x.toString()}
@@ -203,6 +210,7 @@ const D3StackedBarChart = forwardRef<D3StackedBarChartRef, D3StackedBarplotChart
                             data-execlevel-male-xscale={xScale(dataExerciseLevelMale)}
                             data-execlevel-female={dataExerciseLevelFemale}
                             data-execlevel-female-xscale={xScale(dataExerciseLevelFemale)}
+                            data-selected-group={false}
                             data-selected-bar={false}
                         ></rect>
                     );
@@ -219,6 +227,41 @@ const D3StackedBarChart = forwardRef<D3StackedBarChartRef, D3StackedBarplotChart
 
     const xAxisPixelsPerTick = boundsWidth / xAxisTicks;
     const yAxisPixelsPerTick = boundsHeight / yAxisTicks;
+
+    function onGroupClick(groupName: string) {
+        setToggledBarGroup(!toggledBarGroup);
+        // console.log("Clicked group", groupName, !toggledBarGroup);
+
+        if (!toggledBarGroup) {
+            // Disable all previously activated bars.
+            d3
+            .select(".bar-chart-age-vs-exercise-level")
+            .selectAll("[data-selected-group='true']")
+                .attr("data-selected-group", "false");
+
+            // Enable the currently selected group.
+            d3
+            .select(".bar-chart-age-vs-exercise-level")
+            .selectAll("[data-agegroup='" + groupName + "']")
+                .attr("data-selected-group", "true")
+                .attr("data-selected-bar", "true")
+                .style("filter", "saturate(1)")
+                .style("opacity", "0.9")
+                .style("transition", "opacity, filter");
+                // .style("transition-delay", ".5s")
+                // .style("transition-duration", ".5s");
+        } else {
+            // Disable the currently selected group.
+            d3
+            .select(".bar-chart-age-vs-exercise-level")
+            .selectAll("[data-agegroup='" + groupName + "']")
+                .attr("data-selected-group", "false");
+        }
+
+        props.onGroupClick?.forEach((func) => {
+            func(!toggledBarGroup, groupName);
+        });
+    }
 
     return (
         <div
@@ -261,7 +304,7 @@ const D3StackedBarChart = forwardRef<D3StackedBarChartRef, D3StackedBarplotChart
                 <>
                 {/* Axis line and markers. Use an additional translation to appear at the left */}
                 <g transform={`translate(${MARGIN.left}, ${MARGIN.top})`}>
-                    <AxisLeft yScale={yScale} />
+                    <AxisLeft yScale={yScale} onLabelClick={[onGroupClick]} ref={axisLeftAgeGroup} />
                 </g>
 
                 {/* Text label for Y axis. */}

@@ -3,6 +3,7 @@
 import * as d3 from "d3";
 
 import { colorScaleGender } from "../components/marks/Color";
+import { CircleShape } from "../components/marks/Shape";
 
 export function onDonutChartGenderSliceClick(toggledSlice: boolean, selectedSeqnIdentifiers: Set<number>, sliceName: string) {
     // console.log("toggledSlice ", toggledSlice);
@@ -50,7 +51,7 @@ export function onDonutChartGenderSliceClick(toggledSlice: boolean, selectedSeqn
         .select(".dots")
         .selectAll("circle")
             .transition().duration(1000)
-            .attr("r", 5);
+            .attr("r", CircleShape.radius);
 
         d3
         .select(".scatterplot-chart-blood-measures-vs-bmi")
@@ -58,7 +59,7 @@ export function onDonutChartGenderSliceClick(toggledSlice: boolean, selectedSeqn
         .select(".dots")
         .selectAll("circle")
             .transition().duration(1000)
-            .attr("r", 5);
+            .attr("r", CircleShape.radius);
 
         d3
         .select(".scatterplot-chart-blood-measures-vs-bmi")
@@ -66,7 +67,7 @@ export function onDonutChartGenderSliceClick(toggledSlice: boolean, selectedSeqn
         .select(".dots")
         .selectAll("circle")
             .transition().duration(1000)
-            .attr("r", 5);
+            .attr("r", CircleShape.radius);
     }
 
     // Handle interactions for `Waist Circumference vs. BMI` scatterplot chart.
@@ -87,7 +88,7 @@ export function onDonutChartGenderSliceClick(toggledSlice: boolean, selectedSeqn
         .select(".dots")
         .selectAll("circle")
             .transition().duration(1000)
-            .attr("r", 5);
+            .attr("r", CircleShape.radius);
     }
 
 

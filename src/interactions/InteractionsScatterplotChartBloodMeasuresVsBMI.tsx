@@ -2,6 +2,8 @@
 
 import * as d3 from "d3";
 
+import { CircleShape } from "../components/marks/Shape";
+
 export function onScatterplotChartBloodMeasuresVsBMIClick(toggledPoint: boolean, d: SVGCircleElement, markColorScale: d3.ScaleOrdinal<any, any>, xScale: d3.ScaleLinear, yScale: d3.ScaleLinear) {
 
     // Hide all points that are not selected.
@@ -15,7 +17,7 @@ export function onScatterplotChartBloodMeasuresVsBMIClick(toggledPoint: boolean,
         // .style("stroke", markColorScale(d.markColorField))
         .style("stroke-width", "2px")
         .style("fill-opacity", 0.3)
-        .attr("r", 5)
+        .attr("r", CircleShape.radius)
         .attr("data-selected-dot", null);
         
     if (!toggledPoint) {
@@ -33,7 +35,7 @@ export function onScatterplotChartBloodMeasuresVsBMIClick(toggledPoint: boolean,
             .style("opacity", 1)
             .style("fill-opacity", 0.8)
             .style("filter", "saturate(1)")
-            .attr("r", 8)
+            .attr("r", CircleShape.radiusSelected)
             .attr("data-selected-dot", true);
 
         // Draw the line between the selected dots. The delay of 1 second is necessary.
@@ -102,7 +104,7 @@ export function onScatterplotChartBloodMeasuresVsBMIClick(toggledPoint: boolean,
             .style("stroke", markColorScale(d.markColorField))
             .style("stroke-width", "2px")
             .style("fill-opacity", 0.3)
-            .attr("r", 5)
+            .attr("r", CircleShape.radius)
             .attr("data-selected-dot", null);
 
         d3

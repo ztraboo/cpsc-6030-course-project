@@ -80,7 +80,8 @@ const StackedBarChartAgeVsExercise = forwardRef<StackedBarChartAgeVsExerciseRef,
             showXAxis={true}
             showYAxis={true}
             genderDonutChartSliceName={genderDonutChartSliceName}
-            onExerciseLevelClick={props.onExerciseLevelClick}
+            onGroupClick={props.onAgeGroupClick}
+            onSubGroupClick={props.onExerciseLevelClick}
             ref={chartRefD3StackedBarChart}
         />
         </>

@@ -62,80 +62,126 @@ const ScatterplotChartBloodMeasuresVsBMI =forwardRef<ScatterplotChartBloodMeasur
     }));
 
     useImperativeHandle(ref, () => ({
+
+        onStackedBarAgeGroupClick(toggledAgeGroup: boolean, ageGroup: string) {
+            // console.log("onStackedBarAgeGroupClick", toggledAgeGroup, ageGroup);
+
+            let filteredData:Array<any> = [];
+
+            if (toggledAgeGroup) {
+                // Filter original values by ageGroup and exercise level and re-render.
+                filteredData = props.data.filter((d) => 
+                    d.ageGroup === ageGroup
+                );
+
+            } else {
+                // Reset data back to original values and re-render.
+                filteredData = props.data;
+            }
+
+            // Render the charts with filtered data.
+            setScatterplotChartDataGlucoseFastingvsBMI(d3.map(filteredData, (d) => {
+                return {
+                    x: d.bodyMassIndex,
+                    xScaleMin: Math.max(0.1, (d3.min(props.data, (d) => d.bodyMassIndex) as number) - 1), // Ensure the minimum value > 0
+                    xScaleMax: (d3.max(props.data, (d) => d.bodyMassIndex) as number) + 5,
+                    y: d.glucoseFasting,
+                    yScaleMin: Math.max(0.1, (d3.min(props.data, (d) => d.glucoseFasting) as number) - 1), // Ensure the minimum value > 0
+                    yScaleMax: (d3.max(props.data, (d) => d.glucoseFasting) as number) + 5,
+                    markColorField: d.markColorField,
+                    filterGender: d.filterGender,
+                    seqn: d.seqn
+                }
+            }));
+
+            setScatterplotChartDataGluscoseAfter2HourvsBMI(d3.map(filteredData, (d) => {
+                return {
+                    x: d.bodyMassIndex,
+                    xScaleMin: Math.max(0.1, (d3.min(props.data, (d) => d.bodyMassIndex) as number) - 1), // Ensure the minimum value > 0,
+                    xScaleMax: (d3.max(props.data, (d) => d.bodyMassIndex) as number) + 5,
+                    y: d.glucoseAfter2Hour,
+                    yScaleMin: Math.max(0.1, (d3.min(props.data, (d) => d.glucoseAfter2Hour) as number) - 1), // Ensure the minimum value > 0
+                    yScaleMax: (d3.max(props.data, (d) => d.glucoseAfter2Hour) as number) + 5,
+                    markColorField: d.markColorField,
+                    filterGender: d.filterGender,
+                    seqn: d.seqn
+                }
+            }));
+
+            setScatterplotChartDataInsulinvsBMI(d3.map(filteredData, (d) => {
+                return {
+                    x: d.bodyMassIndex,
+                    xScaleMin: Math.max(0.1, (d3.min(props.data, (d) => d.bodyMassIndex) as number) - 1), // Ensure the minimum value > 0
+                    xScaleMax: (d3.max(props.data, (d) => d.bodyMassIndex) as number) + 5,
+                    y: d.insulin,
+                    yScaleMin: Math.max(0.1, (d3.min(props.data, (d) => d.insulin) as number) - 1), // Ensure the minimum value > 0
+                    yScaleMax: (d3.max(props.data, (d) => d.insulin) as number) + 5,
+                    markColorField: d.markColorField,
+                    filterGender: d.filterGender,
+                    seqn: d.seqn
+                }
+            }));
+        },
         // @ts-ignore
         onStackedBarExerciseBarClick(toggledExerciseLevelBar: boolean, ageGroup: string, exerciseBarLevel: string) {
             // console.log("onStackedBarExerciseBarClick", ageGroup, exerciseBarLevel);
+
+            let filteredData:Array<any> = [];
+
             if (toggledExerciseLevelBar) {
 
                 // Filter original values by ageGroup and exercise level and re-render.
-                const filteredData = props.data.filter((d) => 
+                filteredData = props.data.filter((d) => 
                     d.ageGroup === ageGroup && 
                     d.exerciseLevel.trim().toLowerCase() === exerciseBarLevel.trim().toLowerCase()
                 );
-
-                setScatterplotChartDataGlucoseFastingvsBMI(d3.map(filteredData, (d) => {
-                    return {
-                        x: d.bodyMassIndex,
-                        y: d.glucoseFasting,
-                        markColorField: d.markColorField,
-                        filterGender: d.filterGender,
-                        seqn: d.seqn
-                    }
-                }));
-
-                setScatterplotChartDataGluscoseAfter2HourvsBMI(d3.map(filteredData, (d) => {
-                    return {
-                        x: d.bodyMassIndex,
-                        y: d.glucoseAfter2Hour,
-                        markColorField: d.markColorField,
-                        filterGender: d.filterGender,
-                        seqn: d.seqn
-                    }
-                }));
-
-                setScatterplotChartDataInsulinvsBMI(d3.map(filteredData, (d) => {
-                    return {
-                        x: d.bodyMassIndex,
-                        y: d.insulin,
-                        markColorField: d.markColorField,
-                        filterGender: d.filterGender,
-                        seqn: d.seqn
-                    }
-                }));
             } else {
 
                 // Reset data back to original values and re-render.
-                setScatterplotChartDataGlucoseFastingvsBMI(d3.map(props.data, (d) => {
-                    return {
-                        x: d.bodyMassIndex,
-                        y: d.glucoseFasting,
-                        markColorField: d.markColorField,
-                        filterGender: d.filterGender,
-                        seqn: d.seqn
-                    }
-                }));
-
-                setScatterplotChartDataGluscoseAfter2HourvsBMI(d3.map(props.data, (d) => {
-                    return {
-                        x: d.bodyMassIndex,
-                        y: d.glucoseAfter2Hour,
-                        markColorField: d.markColorField,
-                        filterGender: d.filterGender,
-                        seqn: d.seqn
-                    }
-                }));
-
-                setScatterplotChartDataInsulinvsBMI(d3.map(props.data, (d) => {
-                    return {
-                        x: d.bodyMassIndex,
-                        y: d.insulin,
-                        markColorField: d.markColorField,
-                        filterGender: d.filterGender,
-                        seqn: d.seqn
-                    }
-                }));
+                filteredData = props.data;
             }
-                     
+            
+            setScatterplotChartDataGlucoseFastingvsBMI(d3.map(filteredData, (d) => {
+                return {
+                    x: d.bodyMassIndex,
+                    xScaleMin: Math.max(0.1, (d3.min(props.data, (d) => d.bodyMassIndex) as number) - 1), // Ensure the minimum value > 0
+                    xScaleMax: (d3.max(props.data, (d) => d.bodyMassIndex) as number) + 5,
+                    y: d.glucoseFasting,
+                    yScaleMin: Math.max(0.1, (d3.min(props.data, (d) => d.glucoseFasting) as number) - 1), // Ensure the minimum value > 0
+                    yScaleMax: (d3.max(props.data, (d) => d.glucoseFasting) as number) + 5,
+                    markColorField: d.markColorField,
+                    filterGender: d.filterGender,
+                    seqn: d.seqn
+                }
+            }));
+
+            setScatterplotChartDataGluscoseAfter2HourvsBMI(d3.map(filteredData, (d) => {
+                return {
+                    x: d.bodyMassIndex,
+                    xScaleMin: Math.max(0.1, (d3.min(props.data, (d) => d.bodyMassIndex) as number) - 1), // Ensure the minimum value > 0,
+                    xScaleMax: (d3.max(props.data, (d) => d.bodyMassIndex) as number) + 5,
+                    y: d.glucoseAfter2Hour,
+                    yScaleMin: Math.max(0.1, (d3.min(props.data, (d) => d.glucoseAfter2Hour) as number) - 1), // Ensure the minimum value > 0
+                    yScaleMax: (d3.max(props.data, (d) => d.glucoseAfter2Hour) as number) + 5,
+                    markColorField: d.markColorField,
+                    filterGender: d.filterGender,
+                    seqn: d.seqn
+                }
+            }));
+
+            setScatterplotChartDataInsulinvsBMI(d3.map(filteredData, (d) => {
+                return {
+                    x: d.bodyMassIndex,
+                    xScaleMin: Math.max(0.1, (d3.min(props.data, (d) => d.bodyMassIndex) as number) - 1), // Ensure the minimum value > 0
+                    xScaleMax: (d3.max(props.data, (d) => d.bodyMassIndex) as number) + 5,
+                    y: d.insulin,
+                    yScaleMin: Math.max(0.1, (d3.min(props.data, (d) => d.insulin) as number) - 1), // Ensure the minimum value > 0
+                    yScaleMax: (d3.max(props.data, (d) => d.insulin) as number) + 5,
+                    markColorField: d.markColorField,
+                    filterGender: d.filterGender,
+                    seqn: d.seqn
+                }
+            }));
         },
     }));  
 

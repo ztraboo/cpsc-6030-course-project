@@ -19,7 +19,7 @@ import StackedBarChartAgeVsExercise from "./components/charts/StackedBarChartAge
 // Import interactions
 import { onDonutChartGenderSliceClick } from "./interactions/InteractionsDonutChartGender";
 import { onScatterplotChartBloodMeasuresVsBMIClick } from "./interactions/InteractionsScatterplotChartBloodMeasuresVsBMI";
-import { onStackedBarChartAgeVsExerciseClick } from "./interactions/InteractionsStackedBarChartAgeVsExercise";
+import { onStackedBarChartAgeVsExerciseClickExerciseLevel, onStackedBarChartAgeVsExerciseClickAgeGroup } from "./interactions/InteractionsStackedBarChartAgeVsExercise";
 
 // interface DataItemAgeVsExercise {
 //   Age: number;
@@ -270,12 +270,19 @@ function App() {
 
   const chartBloodMeasuresVsBMI: any = useRef();
 
-  // Update Blood Measures vs. BMI when Physical Workout vs. Age exerciseLevel bar or age group is selected.
-  const filterPointsBloodMeasureVsBMI = (toggledExerciseLevelBar: boolean, group: any, subgroup: any) => {
+  // Update Blood Measures vs. BMI when Physical Workout vs. Age exercise level bar selected.
+  const filterPointsBloodMeasureVsBMIOnExerciseLevelClick = (toggledExerciseLevelBar: boolean, group: any, subgroup: any) => {
     if (chartBloodMeasuresVsBMI.current !== undefined) {
       let exerciseBarLevel: string = subgroup.key;
       let ageGroup: string = group.data.x;
       chartBloodMeasuresVsBMI.current.onStackedBarExerciseBarClick(toggledExerciseLevelBar, ageGroup, exerciseBarLevel);
+    } 
+  };
+
+  // Update Blood Measures vs. BMI when Physical Workout vs. Age age group selected.
+  const filterPointsBloodMeasureVsBMIOnAgeGroupClick = (toggledAgeGroup: boolean, ageGroup: string) => {
+    if (chartBloodMeasuresVsBMI.current !== undefined) {
+      chartBloodMeasuresVsBMI.current.onStackedBarAgeGroupClick(toggledAgeGroup, ageGroup);
     } 
   };
 
@@ -379,10 +386,14 @@ function App() {
                                 height={328}
                                 data={barChartDataAgeVsExerciseLevel}
                                 onExerciseLevelClick={[
-                                  onStackedBarChartAgeVsExerciseClick,
-                                  filterPointsBloodMeasureVsBMI
+                                  onStackedBarChartAgeVsExerciseClickAgeGroup,
+                                  onStackedBarChartAgeVsExerciseClickExerciseLevel,
+                                  filterPointsBloodMeasureVsBMIOnExerciseLevelClick
                                 ]}
-                                onAgeGroupClick={[() => {}]}
+                                onAgeGroupClick={[
+                                  onStackedBarChartAgeVsExerciseClickAgeGroup,
+                                  filterPointsBloodMeasureVsBMIOnAgeGroupClick
+                                ]}
                                 ref={chartRefAgeVsExercise}
                               />
                           </div>
