@@ -50,12 +50,15 @@ export function onScatterplotChartBloodMeasuresVsBMIClick(toggledPoint: boolean,
 
             elements.forEach(element => {
                 const rect = element.getBoundingClientRect();
-                // console.log("X: " + rect.x + ", Y: " + rect.y);
+                // console.log("X: " + (rect.x + globalThis.scrollX) + ", Y: " + (rect.y + globalThis.scrollY));
 
+                // Make sure to add scroll offset x and/or y to ensure the 
+                // line is absolute when connection the points.
+                // https://sentry.io/answers/how-do-i-get-the-position-x-y-of-an-html-element/
                 dataSelectedPoints.push(
                     {
-                        x: rect.x,
-                        y: rect.y
+                        x: rect.x + globalThis.scrollX,
+                        y: rect.y + globalThis.scrollY
                     }
                 )
             });
@@ -74,7 +77,7 @@ export function onScatterplotChartBloodMeasuresVsBMIClick(toggledPoint: boolean,
             const group = 
             svg
             .append("g")
-                .attr("transform", "translate(-21, -50)") // -70
+                .attr("transform", "translate(-22, -232)") // -70
                 .attr("overflow", "visible")
                 .attr("data-selected-path", "true");
 
