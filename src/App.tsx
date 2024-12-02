@@ -4,6 +4,8 @@
 // https://www.geeksforgeeks.org/how-to-skip-over-an-element-in-map/
 
 import { useEffect, useRef, useState } from "react";
+import * as _ from "lodash";
+
 import logo from './logo.svg';
 import './App.css';
 
@@ -295,6 +297,20 @@ function App() {
     } 
   };
 
+  const donutRefGender: any = useRef();
+
+  const filterGenderDonutAfterExerciseLevelClick = (toggledExerciseLevelBar: boolean, group: any, subgroup: any) => {
+    if (donutRefGender.current !== undefined) {
+      donutRefGender.current.onUpdateGenderOnStackedBarExerciseBarClick(toggledExerciseLevelBar, group, subgroup);
+    }
+  };
+
+  const filterGenderDonutAfterAgeGroupClick = (toggledAgeGroup: boolean, group: any, subgroup: any) => {
+    if (donutRefGender.current !== undefined) {
+      donutRefGender.current.onUpdateGenderOnStackedBarAgeGroupClick(toggledAgeGroup, group);
+    }
+  };
+
   return (
     <div className="App">
         {isLoading && (
@@ -374,6 +390,7 @@ function App() {
                                 onDonutChartGenderSliceClick,
                                 updateTooltipForPhysicalWorkoutVsAge
                               ]}
+                              ref={donutRefGender}
                             />
                         </div>
                       )}
@@ -386,13 +403,14 @@ function App() {
                                 height={328}
                                 data={barChartDataAgeVsExerciseLevel}
                                 onExerciseLevelClick={[
-                                  onStackedBarChartAgeVsExerciseClickAgeGroup,
                                   onStackedBarChartAgeVsExerciseClickExerciseLevel,
-                                  filterPointsBloodMeasureVsBMIOnExerciseLevelClick
+                                  filterPointsBloodMeasureVsBMIOnExerciseLevelClick,
+                                  filterGenderDonutAfterExerciseLevelClick
                                 ]}
                                 onAgeGroupClick={[
                                   onStackedBarChartAgeVsExerciseClickAgeGroup,
-                                  filterPointsBloodMeasureVsBMIOnAgeGroupClick
+                                  filterPointsBloodMeasureVsBMIOnAgeGroupClick,
+                                  filterGenderDonutAfterAgeGroupClick
                                 ]}
                                 ref={chartRefAgeVsExercise}
                               />

@@ -13,6 +13,8 @@ type D3DonutChartProps = {
   width: number;
   height: number;
   data: DataItem[];
+  dataOriginal?: DataItem[];
+  dataFiltered?: DataItem[];
   showPercentages: boolean;
   markColorScale: d3.ScaleOrdinal<any, any>;
   onUpdateParticipantCount: Function;
@@ -98,6 +100,12 @@ const D3DonutChart = ({ width, height, data, showPercentages, markColorScale, on
                     func(toggledSlice, grp.data.seqnIdentifiers, grp.data.name);
                 });
 
+                // Remove all existing inline styling for all slices previously selected. Also remove data attribute signifying selected slice.
+                document.querySelectorAll('[class^="donut-chart_slice"]').forEach((slice) => {
+                    slice.removeAttribute("style");
+                    slice.removeAttribute("data-gender-slice-selected");
+                });
+
                 if (toggledSlice) {
                     
                     // Change the number for participants based on the slice selection.
@@ -108,15 +116,11 @@ const D3DonutChart = ({ width, height, data, showPercentages, markColorScale, on
                     if (ref.current) {
                         ref.current.classList.add(styles.hasHighlight);
                     }
-
-                    // Remove all existing inline styling for all slices previously selected.
-                    document.querySelectorAll('[class^="donut-chart_slice"]').forEach((slice) => {
-                        slice.removeAttribute("style");
-                    });
                     
-                    // Add an inline styling for current selected slice.
+                    // Add an inline styling for current selected slice and add data for slice selected.
                     d3.select(s.currentTarget)
-                    .attr("style", "filter: saturate(100%); opacity: 1;");
+                    .attr("style", "filter: saturate(100%); opacity: 1;")
+                    .attr("data-gender-slice-selected", grp.data.name);
 
                     if (onFilterByGender !== undefined) {
                         onFilterByGender(grp.data.name);
@@ -136,9 +140,10 @@ const D3DonutChart = ({ width, height, data, showPercentages, markColorScale, on
                         ref.current.classList.remove(styles.hasHighlight);
                     }
 
-                    // Remove inline style for current selected slice.
-                    d3.select(s.currentTarget)
-                    .attr("style", null);
+                    // Remove inline style for current selected slice and data selected attribute.
+                    // d3.select(s.currentTarget)
+                    // .attr("style", null)
+                    // .attr("data-gender-slice-selected", null);
 
                     if (onFilterByGender !== undefined) {
                         onFilterByGender(null);
