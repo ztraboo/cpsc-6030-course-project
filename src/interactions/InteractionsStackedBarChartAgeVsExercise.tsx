@@ -97,6 +97,15 @@ export function onStackedBarChartAgeVsExerciseClickExerciseLevel(toggledBarSubgr
             .transition().duration(1500)
             .style("opacity", 1);
 
+        // Retransition the dots to make them fade in.
+        d3
+        .select(".scatterplot-chart-waist-cirumference-vs-bmi")
+        .selectAll(".dots")
+        .selectAll("circle")
+            .style("opacity", 0.2)
+            .transition().duration(1500)
+            .style("opacity", 1);
+
     } else {
 
         // Show all exercise level bars not selected in Exercise Level vs. Age Group chart.
@@ -113,6 +122,13 @@ export function onStackedBarChartAgeVsExerciseClickExerciseLevel(toggledBarSubgr
         // Retransition the dots to make them fade in.
         d3
         .select(".scatterplot-chart-blood-measures-vs-bmi")
+        .selectAll(".dots")
+        .selectAll("circle")
+            .style("opacity", 0);
+
+        // Retransition the dots to make them fade in.
+        d3
+        .select(".scatterplot-chart-waist-cirumference-vs-bmi")
         .selectAll(".dots")
         .selectAll("circle")
             .style("opacity", 0);

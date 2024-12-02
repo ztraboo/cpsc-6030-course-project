@@ -39,6 +39,37 @@ const ScatterplotChartWaistCircumferenceVsBMI = forwardRef<ScatterplotChartWaist
     }));
 
     useImperativeHandle(ref, () => ({
+        onStackedBarAgeGroupClick(toggledAgeGroup: boolean, ageGroup: string) {
+            // console.log("onStackedBarAgeGroupClick", toggledAgeGroup, ageGroup);
+
+            let filteredData:Array<any> = [];
+
+            if (toggledAgeGroup) {
+                // Filter original values by ageGroup and exercise level and re-render.
+                filteredData = props.data.filter((d) => 
+                    d.ageGroup === ageGroup
+                );
+
+            } else {
+                // Reset data back to original values and re-render.
+                filteredData = props.data;
+            }
+
+            // Render the charts with filtered data.
+            setScatterplotChartData(d3.map(filteredData, (d) => {
+                return {
+                    x: d.waistCircumference,
+                    xScaleMin: Math.max(0.1, (d3.min(props.data, (d) => d.waistCircumference) as number) - 1), // Ensure the minimum value > 0
+                    xScaleMax: (d3.max(props.data, (d) => d.waistCircumference) as number) + 5,
+                    y: d.bodyMassIndex,
+                    yScaleMin: Math.max(0.1, (d3.min(props.data, (d) => d.bodyMassIndex) as number) - 1), // Ensure the minimum value > 0
+                    yScaleMax: (d3.max(props.data, (d) => d.bodyMassIndex) as number) + 5,
+                    markColorField: d.markColorField,
+                    filterGender: d.filterGender,
+                    seqn: d.seqn
+                }
+            }));
+        },
         // @ts-ignore
         onStackedBarExerciseBarClick(toggledExerciseLevelBar: boolean, ageGroup: string, exerciseBarLevel: string) {
             console.log("onStackedBarExerciseBarClick", toggledExerciseLevelBar, ageGroup, exerciseBarLevel);

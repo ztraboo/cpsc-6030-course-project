@@ -299,6 +299,13 @@ function App() {
     } 
   };
 
+  // Update Blood Measures vs. BMI when Physical Workout vs. Age age group selected.
+  const filterPointsWaistCircumferenceVsBMIOnAgeGroupClick = (toggledAgeGroup: boolean, ageGroup: string) => {
+    if (chartWaistCircumferenceVsBMI.current !== undefined) {
+      chartWaistCircumferenceVsBMI.current.onStackedBarAgeGroupClick(toggledAgeGroup, ageGroup);
+    } 
+  };
+  
   const chartRefAgeVsExercise: any = useRef();
 
   // Update Physical Workout vs. Age tooltip when Donut Gender chart slice is selected.
@@ -422,6 +429,7 @@ function App() {
                                 onAgeGroupClick={[
                                   onStackedBarChartAgeVsExerciseClickAgeGroup,
                                   filterPointsBloodMeasureVsBMIOnAgeGroupClick,
+                                  filterPointsWaistCircumferenceVsBMIOnAgeGroupClick,
                                   filterGenderDonutAfterAgeGroupClick
                                 ]}
                                 ref={chartRefAgeVsExercise}
