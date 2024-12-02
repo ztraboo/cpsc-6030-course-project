@@ -259,7 +259,8 @@ const D3StackedBarChart = forwardRef<D3StackedBarChartRef, D3StackedBarplotChart
         }
 
         props.onGroupClick?.forEach((func) => {
-            func(!toggledBarGroup, groupName);
+            let group = props.data.filter((d) => d.x === groupName);
+            func(!toggledBarGroup, groupName, group[0]);
         });
     }
 

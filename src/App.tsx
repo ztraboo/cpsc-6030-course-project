@@ -305,7 +305,7 @@ function App() {
     }
   };
 
-  const filterGenderDonutAfterAgeGroupClick = (toggledAgeGroup: boolean, group: any, subgroup: any) => {
+  const filterGenderDonutAfterAgeGroupClick = (toggledAgeGroup: boolean, groupName: string, group: any) => {
     if (donutRefGender.current !== undefined) {
       donutRefGender.current.onUpdateGenderOnStackedBarAgeGroupClick(toggledAgeGroup, group);
     }

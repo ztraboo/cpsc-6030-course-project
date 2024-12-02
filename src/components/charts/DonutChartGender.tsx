@@ -39,11 +39,12 @@ const DonutChartGender = forwardRef<DonutChartGenderRef, DonutChartGenderProps>(
 
         // @ts-ignore
         onUpdateGenderOnStackedBarExerciseBarClick(toggledExerciseLevelBar: boolean, ageGroup: any, exerciseLevel: any) {
-            console.log("Donut updateGenderExerciseClick", toggledExerciseLevelBar, ageGroup, exerciseLevel);
+            // console.log("Donut updateGenderExerciseClick", toggledExerciseLevelBar, ageGroup, exerciseLevel);
 
-            let dataExerciseLevel = 0;
-            let dataExerciseLevelMale = 0;
-            let dataExerciseLevelFemale = 0;
+            // Calculate the age group values and percentages filtered by gender.
+            let dataExerciseLevel:number = 0;
+            let dataExerciseLevelMale:number = 0;
+            let dataExerciseLevelFemale:number = 0;
 
             if (exerciseLevel.key === "No") {
                 dataExerciseLevel = ageGroup.data.No
@@ -73,6 +74,7 @@ const DonutChartGender = forwardRef<DonutChartGenderRef, DonutChartGenderProps>(
 
                 setFilteredGenderDonutChartData(filteredDonutChartData);
             } else {
+                // Disable slices that are not selected and enable ones that were previous selected.
                 let selectedGenderSlice:string | null = "";
                 document.querySelectorAll('[class^="donut-chart_slice"]').forEach((slice: any) => {
                     if (slice.dataset.genderSliceSelected !== undefined) {
@@ -114,6 +116,73 @@ const DonutChartGender = forwardRef<DonutChartGenderRef, DonutChartGenderProps>(
         },
         onUpdateGenderOnStackedBarAgeGroupClick(toggledAgeGroup: boolean, ageGroup: any) {
             console.log("Donut updateGenderAgeGroupClick", toggledAgeGroup, ageGroup);
+
+            // Calculate the age group values and percentages filtered by gender.
+            let dataAgeGroup:number = 0;
+            let dataAgeGroupMale:number = 0;
+            let dataAgeGroupFemale:number = 0;
+
+            dataAgeGroup = ageGroup.No + ageGroup.Vigorous;
+            dataAgeGroupMale = ageGroup.NoMale + ageGroup.VigorousMale;
+            dataAgeGroupFemale = ageGroup.NoFemale + ageGroup.VigorousFemale;
+                    
+            let filteredDonutChartData:Array<DataItem> = _.cloneDeep(props.data);
+
+            if (toggledAgeGroup) {
+                filteredDonutChartData.forEach((d) => {
+                    switch (d.name) {
+                        case "Female":
+                            d.value = dataAgeGroupFemale;
+                            d.percentage = (dataAgeGroupFemale / dataAgeGroup) * 100;
+                            break;
+                        case "Male":
+                            d.value = dataAgeGroupMale;
+                            d.percentage = (dataAgeGroupMale / dataAgeGroup) * 100
+                            break;
+                    }
+                });
+
+                setFilteredGenderDonutChartData(filteredDonutChartData);
+            } else {
+                // Disable slices that are not selected and enable ones that were previous selected.
+                let selectedGenderSlice:string | null = "";
+                document.querySelectorAll('[class^="donut-chart_slice"]').forEach((slice: any) => {
+                    if (slice.dataset.genderSliceSelected !== undefined) {
+                        selectedGenderSlice = slice.dataset.genderSliceSelected;
+
+                        slice.removeAttribute("style");
+                        slice.setAttribute("style", "filter: saturate(100%); opacity: 1;");
+                        slice.setAttribute("data-gender-slice-selected", slice.dataset.genderSliceSelected);
+                    } else {
+                        slice.removeAttribute("style");
+                        slice.removeAttribute("data-gender-slice-selected");
+
+                    }
+                });
+
+                setFilteredGenderDonutChartData(filteredDonutChartData);
+            }
+
+            // Update participant count based on slice selection.
+            let totalParticipantCountSelectedSlice = 0;
+            document.querySelectorAll('[class^="donut-chart_slice"]').forEach((slice: any) => {
+                const sliceGenderSelected = filteredDonutChartData.filter((d) => d.name === slice.dataset.genderSliceSelected);
+                var sliceValue = (sliceGenderSelected.length !== 0 ? sliceGenderSelected[0].value : 0 );
+                if (slice.dataset.genderSliceSelected !== undefined) {
+                    totalParticipantCountSelectedSlice += sliceValue;
+                }
+            });
+
+            // Change the number for participants for the whole donut chart values.
+            let totalParticipantCountAllSlices = 0;
+            filteredDonutChartData.forEach((slice) => {
+                totalParticipantCountAllSlices += slice.value
+            })
+
+            props.onUpdateParticipantCount(
+                totalParticipantCountSelectedSlice !== 0 ? totalParticipantCountSelectedSlice : 
+                totalParticipantCountAllSlices
+            );
         }
     }));
 
