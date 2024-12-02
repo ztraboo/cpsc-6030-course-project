@@ -15,7 +15,7 @@ interface ScatterplotChartBloodMeasuresVsBMIProps {
         bodyMassIndex: number;
         markColorField: string;
         filterGender: string;
-        ageGroup: string,
+        ageGroup: string;
         exerciseLevel: string;
     }[];
     hoveredGroup: string | null;
@@ -124,7 +124,7 @@ const ScatterplotChartBloodMeasuresVsBMI =forwardRef<ScatterplotChartBloodMeasur
         },
         // @ts-ignore
         onStackedBarExerciseBarClick(toggledExerciseLevelBar: boolean, ageGroup: string, exerciseBarLevel: string) {
-            // console.log("onStackedBarExerciseBarClick", ageGroup, exerciseBarLevel);
+            // console.log("onStackedBarExerciseBarClick", toggledExerciseLevelBar, ageGroup, exerciseBarLevel);
 
             let filteredData:Array<any> = [];
 
