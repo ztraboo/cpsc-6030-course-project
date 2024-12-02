@@ -4,6 +4,8 @@
 // https://www.geeksforgeeks.org/how-to-skip-over-an-element-in-map/
 
 import { useEffect, useRef, useState } from "react";
+import * as _ from "lodash";
+
 import logo from './logo.svg';
 import './App.css';
 
@@ -19,6 +21,7 @@ import StackedBarChartAgeVsExercise from "./components/charts/StackedBarChartAge
 // Import interactions
 import { onDonutChartGenderSliceClick } from "./interactions/InteractionsDonutChartGender";
 import { onScatterplotChartBloodMeasuresVsBMIClick } from "./interactions/InteractionsScatterplotChartBloodMeasuresVsBMI";
+import { onStackedBarChartAgeVsExerciseClickExerciseLevel, onStackedBarChartAgeVsExerciseClickAgeGroup } from "./interactions/InteractionsStackedBarChartAgeVsExercise";
 
 // interface DataItemAgeVsExercise {
 //   Age: number;
@@ -225,7 +228,9 @@ function App() {
                   [ "insulin", parseFloat(participant["Insulin"]) ],
                   [ "glucoseAfter2Hour", parseFloat(participant["Lbxglt(Glucose after 2 hr)"]) ],
                   [ "glucoseFasting", parseFloat(participant["Lbxglu(Glucose fasting)"]) ],
-                  [ "markColorField", participant["Diabetes Diagnosis Status"] ] 
+                  [ "markColorField", participant["Diabetes Diagnosis Status"] ],
+                  [ "ageGroup", getAgeGroup(participant["Age"]) ],
+                  [ "exerciseLevel", participant["Paq605 ( Vigorous Exercise)"] ]
                 ]
               ) 
             })
@@ -246,7 +251,9 @@ function App() {
                   [ "waistCircumference", parseFloat(participant["Waist Circumference (cm)"])],
                   [ "bodyMassIndex", parseFloat(participant["Bmxbmi"]) ],
                   [ "markColorField", participant["Gender"] ],
-                  [ "filterGender", participant["Gender"] ]
+                  [ "filterGender", participant["Gender"] ],
+                  [ "ageGroup", getAgeGroup(participant["Age"]) ],
+                  [ "exerciseLevel", participant["Paq605 ( Vigorous Exercise)"] ]
                 ]
               ) 
             })
@@ -261,6 +268,66 @@ function App() {
       fetchData();
     }
   }, []);
+
+
+  const chartBloodMeasuresVsBMI: any = useRef();
+
+  // Update Blood Measures vs. BMI when Physical Workout vs. Age exercise level bar selected.
+  const filterPointsBloodMeasureVsBMIOnExerciseLevelClick = (toggledExerciseLevelBar: boolean, group: any, subgroup: any) => {
+    if (chartBloodMeasuresVsBMI.current !== undefined) {
+      let exerciseBarLevel: string = subgroup.key;
+      let ageGroup: string = group.data.x;
+      chartBloodMeasuresVsBMI.current.onStackedBarExerciseBarClick(toggledExerciseLevelBar, ageGroup, exerciseBarLevel);
+    } 
+  };
+
+  // Update Blood Measures vs. BMI when Physical Workout vs. Age age group selected.
+  const filterPointsBloodMeasureVsBMIOnAgeGroupClick = (toggledAgeGroup: boolean, ageGroup: string) => {
+    if (chartBloodMeasuresVsBMI.current !== undefined) {
+      chartBloodMeasuresVsBMI.current.onStackedBarAgeGroupClick(toggledAgeGroup, ageGroup);
+    } 
+  };
+
+  const chartWaistCircumferenceVsBMI: any = useRef();
+
+  // Update Blood Measures vs. BMI when Physical Workout vs. Age exercise level bar selected.
+  const filterPointsWaistCircumferenceVsBMIOnExerciseLevelClick = (toggledExerciseLevelBar: boolean, group: any, subgroup: any) => {
+    if (chartWaistCircumferenceVsBMI.current !== undefined) {
+      let exerciseBarLevel: string = subgroup.key;
+      let ageGroup: string = group.data.x;
+      chartWaistCircumferenceVsBMI.current.onStackedBarExerciseBarClick(toggledExerciseLevelBar, ageGroup, exerciseBarLevel);
+    } 
+  };
+
+  // Update Blood Measures vs. BMI when Physical Workout vs. Age age group selected.
+  const filterPointsWaistCircumferenceVsBMIOnAgeGroupClick = (toggledAgeGroup: boolean, ageGroup: string) => {
+    if (chartWaistCircumferenceVsBMI.current !== undefined) {
+      chartWaistCircumferenceVsBMI.current.onStackedBarAgeGroupClick(toggledAgeGroup, ageGroup);
+    } 
+  };
+  
+  const chartRefAgeVsExercise: any = useRef();
+
+  // Update Physical Workout vs. Age tooltip when Donut Gender chart slice is selected.
+  const updateTooltipForPhysicalWorkoutVsAge = (toggledSlice: boolean, selectedSeqnIdentifiers: Set<number>, sliceName: string) => {
+    if (chartRefAgeVsExercise.current !== undefined) {
+      chartRefAgeVsExercise.current.onDonutChartGenderSliceClick(toggledSlice, sliceName);
+    } 
+  };
+
+  const donutRefGender: any = useRef();
+
+  const filterGenderDonutAfterExerciseLevelClick = (toggledExerciseLevelBar: boolean, group: any, subgroup: any) => {
+    if (donutRefGender.current !== undefined) {
+      donutRefGender.current.onUpdateGenderOnStackedBarExerciseBarClick(toggledExerciseLevelBar, group, subgroup);
+    }
+  };
+
+  const filterGenderDonutAfterAgeGroupClick = (toggledAgeGroup: boolean, groupName: string, group: any) => {
+    if (donutRefGender.current !== undefined) {
+      donutRefGender.current.onUpdateGenderOnStackedBarAgeGroupClick(toggledAgeGroup, group);
+    }
+  };
 
   return (
     <div className="App">
@@ -311,6 +378,7 @@ function App() {
                                 hoveredGroup={hoveredGroupDataDataBloodMeasuresVsBMI}
                                 setHoveredGroup={setHoveredGroupDataDataBloodMeasuresVsBMI}
                                 onPointClick={[onScatterplotChartBloodMeasuresVsBMIClick]}
+                                ref={chartBloodMeasuresVsBMI}
                               />
                           </div>
                       )}
@@ -336,7 +404,11 @@ function App() {
                               data={donutChartDataGender}
                               onUpdateParticipantCount={setParticipantCount}
                               onFilterByGender={setHoveredGroupDataWaistCircumferenceVsBMIByGender}
-                              onSliceClick={[onDonutChartGenderSliceClick]}
+                              onSliceClick={[
+                                onDonutChartGenderSliceClick,
+                                updateTooltipForPhysicalWorkoutVsAge
+                              ]}
+                              ref={donutRefGender}
                             />
                         </div>
                       )}
@@ -348,6 +420,19 @@ function App() {
                               <StackedBarChartAgeVsExercise
                                 height={328}
                                 data={barChartDataAgeVsExerciseLevel}
+                                onExerciseLevelClick={[
+                                  onStackedBarChartAgeVsExerciseClickExerciseLevel,
+                                  filterPointsBloodMeasureVsBMIOnExerciseLevelClick,
+                                  filterPointsWaistCircumferenceVsBMIOnExerciseLevelClick,
+                                  filterGenderDonutAfterExerciseLevelClick
+                                ]}
+                                onAgeGroupClick={[
+                                  onStackedBarChartAgeVsExerciseClickAgeGroup,
+                                  filterPointsBloodMeasureVsBMIOnAgeGroupClick,
+                                  filterPointsWaistCircumferenceVsBMIOnAgeGroupClick,
+                                  filterGenderDonutAfterAgeGroupClick
+                                ]}
+                                ref={chartRefAgeVsExercise}
                               />
                           </div>
                       )}
@@ -363,6 +448,7 @@ function App() {
                               hoveredGroup={hoveredGroupDataWaistCircumferenceVsBMIByGender}
                               setHoveredGroup={setHoveredGroupDataWaistCircumferenceVsBMIByGender}
                               onPointClick={[]}
+                              ref={chartWaistCircumferenceVsBMI}
                             />
                         </div>
                     )}

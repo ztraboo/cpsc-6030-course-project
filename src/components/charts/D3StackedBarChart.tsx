@@ -1,5 +1,7 @@
-import { useEffect, useMemo, useRef, useState, MutableRefObject } from "react";
+import { useEffect, useMemo, useRef, useState, MutableRefObject, forwardRef, useImperativeHandle } from "react";
 import * as d3 from "d3";
+
+import styles from "./stackedbar.module.css";
 
 import useChartDimensions from "../../hooks/useChartDimensions";
 import { StripGenerator } from "./StripGenerator";
@@ -34,34 +36,37 @@ type D3StackedBarplotChartProps = {
   markColorScale: d3.ScaleOrdinal<any, any>;
   xAxisLabel: string;
   yAxisLabel: string;
-  xAxisTicks?: number;
-  yAxisTicks?: number;
-  showXAxis?: boolean;
-  showYAxis?: boolean;
-  legendAlign?: string;
-  showLegend?: boolean;
+  xAxisTicks?: number | 30;
+  yAxisTicks?: number | 30;
+  showXAxis?: boolean | true;
+  showYAxis?: boolean | true;
+  legendAlign?: string | "right";
+  showLegend?: boolean | true;
+  genderDonutChartSliceName: string;
+  onSubGroupClick?: Array<Function> | [];
+  onGroupClick?: Array<Function> | [];
 };
 
-const D3StackedBarChart = ({
-  height,
-  allGroups,
-  allSubgroups,
-  data,
-  domainCountMax,
-  markColorFieldLegendName,
-  markColorScale,
-  xAxisLabel,
-  yAxisLabel,
-  xAxisTicks=30,
-  yAxisTicks=30,
-  showXAxis=true,
-  showYAxis=true,
-  legendAlign="right",
-  showLegend=true 
-}: D3StackedBarplotChartProps) => {
+interface D3StackedBarChartRef {
+    onGenderSliceClick: () => void;
+};
+
+const D3StackedBarChart = forwardRef<D3StackedBarChartRef, D3StackedBarplotChartProps>((props, ref) => {
+    // Set defaults for optional parameters
+    let xAxisTicks = props.xAxisTicks ?? 30;
+    let yAxisTicks = props.yAxisTicks ?? 30;
+    let showXAxis = props.showXAxis ?? true;
+    let showYAxis = props.showYAxis ?? true;
+    let legendAlign = props.legendAlign ?? "right";
+    let showLegend = props.showLegend ?? true;
+
+    const innerRef = useRef();
     const axesRef = useRef(null);
 
-    const [ref, dms] = useChartDimensions({
+    const [toggledBarGroup, setToggledBarGroup] = useState(false);
+    const [toggledBarSubgroup, setToggledBarSubgroup] = useState(false);
+
+    const [refChart, dms] = useChartDimensions({
     marginTop: MARGIN.top,
     marginBottom: MARGIN.bottom,
     marginLeft: MARGIN.left,
@@ -78,7 +83,7 @@ const D3StackedBarChart = ({
     // The bounds (=area inside the axis) is calculated by substracting the margins
     // @ts-expect-error
     const boundsWidth = dms.width - MARGIN.right - MARGIN.left;
-    const boundsHeight = height - MARGIN.top - MARGIN.bottom;
+    const boundsHeight = props.height - MARGIN.top - MARGIN.bottom;
 
     // Property 'width' does not exist on type 'MutableRefObject<undefined>'.
     // @ts-expect-error
@@ -86,44 +91,28 @@ const D3StackedBarChart = ({
 
     // Define the stack generator
     const stackGenerator = d3.stack()
-        .keys(allSubgroups);
+        .keys(props.allSubgroups);
 
-    const series = stackGenerator(data);
-
-    // // Y axis
-    // const max = 900; // todo
-    // const yScale = useMemo(() => {
-    // return d3
-    //     .scaleLinear()
-    //     .domain([0, max || 0])
-    //     .range([boundsHeight, 0]);
-    // }, [data, height]);
-
-    // // X axis
-    // const xScale = useMemo(() => {
-    // return d3
-    //     .scaleBand<string>()
-    //     .domain(allGroups)
-    //     .range([0, boundsWidth])
-    //     .padding(0.05);
-    // }, [data, width]);
+    const series = stackGenerator(props.data);
 
     // Create the vertical scale and its axis generators.
     const yScale = useMemo(() => {
     return d3
         .scaleBand<string>()
-        .domain(allGroups)
+        .domain(props.allGroups)
         .range([0, boundsHeight])
         .padding(0.2);
-    }, [data, height]);
+    }, [props.data, props.height]);
 
     // Create the horizontal scale and its axis generators.
     const xScale = useMemo(() => {
     return d3
         .scaleLinear()
-        .domain([0, domainCountMax + 10])
+        .domain([0, props.domainCountMax + 10])
         .range([0, boundsWidth]);
-    }, [data, width]);
+    }, [props.data, width]);
+
+    const axisLeftAgeGroup: any = useRef();
 
     // ref={ref as MutableRefObject<HTMLDivElement>}
     const rectangles = series.map((subgroup, i) => {
@@ -144,20 +133,74 @@ const D3StackedBarChart = ({
                         dataExerciseLevelFemale = group.data.VigorousFemale;
                     }
 
+                    // Adjust tooltip count values based on gender slice selection.
+                    let tooltipExerciseLevelCount: number = 0;
+                    switch (props.genderDonutChartSliceName.toLowerCase()) {
+                        case "female":
+                            tooltipExerciseLevelCount = dataExerciseLevelFemale;
+                            break;
+                        case "male":
+                            tooltipExerciseLevelCount = dataExerciseLevelMale;
+                            break;
+                        default:
+                            tooltipExerciseLevelCount = dataExerciseLevel;
+                    }
+
+                    // const className = // class if the rect depends on the hover state
+                    //     hoveredGroup && d.markColorField !== hoveredGroup
+                    //     ? styles.stackedbarRect + " " + styles.dimmed
+                    //     : styles.stackedbarRect;
+
+                    const className = styles.stackedbarRect;
+                        
                     return (
                         <rect
                             key={j}
                             x={xScale(group[0])}
                             y={yScale(group.data.x.toString())}
+                            className={className}
                             height={yScale.bandwidth()}
                             width={xScale(group[1]) - xScale(group[0])}
-                            fill={markColorScale(subgroup.key)}
+                            fill={props.markColorScale(subgroup.key)}
                             opacity={0.9}
                             onMouseOver={() => {
-                                // setHovered(null);
+                                setHovered({
+                                    xPos: xScale(group[0]),
+                                    yPos: yScale(group.data.x.toString()),
+                                    markColorScale: props.markColorScale,
+                                    markColorFieldLegendName: props.markColorFieldLegendName,
+                                    markColorField: subgroup.key,
+                                    xAxisLabel: props.xAxisLabel,
+                                    xAxisValue: tooltipExerciseLevelCount,
+                                    yAxisLabel: props.yAxisLabel,
+                                    yAxisValue: group.data.x
+                                  });
                             }}
                             onMouseLeave={() => {
-                                // setHovered(null);
+                                setHovered(null);
+                            }}
+                            onClick={(x) => {
+                                setToggledBarSubgroup(!toggledBarSubgroup);
+
+                                if (!toggledBarSubgroup) {
+                                    // Disable all previously activated bars.
+                                    d3
+                                    .select(".bar-chart-age-vs-exercise-level")
+                                    .selectAll("[data-selected-bar='true']")
+                                        .attr("data-selected-bar", "false");
+
+                                    // Enable the currently selected bar.
+                                    x.currentTarget.setAttribute("data-selected-bar", "true");
+                                } else {
+                                    x.currentTarget.setAttribute("data-selected-bar", "false");
+                                }
+
+                                props.onSubGroupClick?.forEach((func) => {
+                                    func(!toggledBarSubgroup, group, subgroup);
+                                });
+
+                                axisLeftAgeGroup.current.toggleAxisLabel(false);
+                                setToggledBarGroup(false);
                             }}
                             data-x={xScale(group[0])}
                             data-agegroup={group.data.x.toString()}
@@ -167,6 +210,8 @@ const D3StackedBarChart = ({
                             data-execlevel-male-xscale={xScale(dataExerciseLevelMale)}
                             data-execlevel-female={dataExerciseLevelFemale}
                             data-execlevel-female-xscale={xScale(dataExerciseLevelFemale)}
+                            data-selected-group={false}
+                            data-selected-bar={false}
                         ></rect>
                     );
                 })}
@@ -183,19 +228,55 @@ const D3StackedBarChart = ({
     const xAxisPixelsPerTick = boundsWidth / xAxisTicks;
     const yAxisPixelsPerTick = boundsHeight / yAxisTicks;
 
+    function onGroupClick(groupName: string) {
+        setToggledBarGroup(!toggledBarGroup);
+        // console.log("Clicked group", groupName, !toggledBarGroup);
+
+        if (!toggledBarGroup) {
+            // Disable all previously activated bars.
+            d3
+            .select(".bar-chart-age-vs-exercise-level")
+            .selectAll("[data-selected-group='true']")
+                .attr("data-selected-group", "false");
+
+            // Enable the currently selected group.
+            d3
+            .select(".bar-chart-age-vs-exercise-level")
+            .selectAll("[data-agegroup='" + groupName + "']")
+                .attr("data-selected-group", "true")
+                .attr("data-selected-bar", "true")
+                .style("filter", "saturate(1)")
+                .style("opacity", "0.9")
+                .style("transition", "opacity, filter");
+                // .style("transition-delay", ".5s")
+                // .style("transition-duration", ".5s");
+        } else {
+            // Disable the currently selected group.
+            d3
+            .select(".bar-chart-age-vs-exercise-level")
+            .selectAll("[data-agegroup='" + groupName + "']")
+                .attr("data-selected-group", "false");
+        }
+
+        props.onGroupClick?.forEach((func) => {
+            let group = props.data.filter((d) => d.x === groupName);
+            func(!toggledBarGroup, groupName, group[0]);
+        });
+    }
+
     return (
         <div
-            ref={ref as MutableRefObject<HTMLDivElement>}
+            ref={refChart as MutableRefObject<HTMLDivElement>}
             style={{
-                height, 
+                height: `${props.height}`, 
                 position: "relative"
             }}
             className="container"
         >
             <svg 
                 width={width}
-                height={height}
-                viewBox={`0 0 ${width} ${height}`}
+                height={props.height}
+                viewBox={`0 0 ${width} ${props.height}`}
                 className="viz"
                 shapeRendering={"crispEdges"}
             >
@@ -211,7 +292,7 @@ const D3StackedBarChart = ({
                 {/* legend */}
                 {showLegend && (
                     <svg className="legend" overflow={"visible"}>
-                        <Swatches markColorScale={markColorScale} onSelect={handleSwatchSelect} legendOffsetX={legendOffsetX} />
+                        <Swatches markColorScale={props.markColorScale} onSelect={handleSwatchSelect} legendOffsetX={legendOffsetX} />
                     </svg>
                 )}
 
@@ -224,7 +305,7 @@ const D3StackedBarChart = ({
                 <>
                 {/* Axis line and markers. Use an additional translation to appear at the left */}
                 <g transform={`translate(${MARGIN.left}, ${MARGIN.top})`}>
-                    <AxisLeft yScale={yScale} />
+                    <AxisLeft yScale={yScale} onLabelClick={[onGroupClick]} ref={axisLeftAgeGroup} />
                 </g>
 
                 {/* Text label for Y axis. */}
@@ -236,7 +317,7 @@ const D3StackedBarChart = ({
                         style={{textAnchor: "start", fontWeight: "normal"}}
                         transform={"rotate(0)"}
                     >
-                        {yAxisLabel}
+                        {props.yAxisLabel}
                     </text>
                 </g>
                 </>
@@ -256,7 +337,7 @@ const D3StackedBarChart = ({
                         x={boundsWidth / 2}
                         style={{textAnchor: "middle", fontWeight: "normal"}}
                     >
-                        {xAxisLabel}
+                        {props.xAxisLabel}
                     </text>
                 </g>
                 </>
@@ -270,8 +351,8 @@ const D3StackedBarChart = ({
                 width: boundsWidth,
                 height: boundsHeight,
                 position: "absolute",
-                top: 0,
-                left: 0,
+                top: -50,
+                left: -200,
                 pointerEvents: "none",
                 marginLeft: MARGIN.left,
                 marginTop: MARGIN.top,
@@ -281,6 +362,6 @@ const D3StackedBarChart = ({
             </div>
         </div>
     );
-};
+});
 
 export default D3StackedBarChart;

@@ -11,6 +11,7 @@ import useChartDimensions from "../../hooks/useChartDimensions";
 import { StripGenerator } from "./StripGenerator";
 import { AxisBottom } from "../axis/AxisBottom";
 import { AxisLeft } from "../axis/AxisLeft";
+import { CircleShape } from "../marks/Shape";
 import { InteractionData, Tooltip } from "../marks/Tooltip";
 import { Swatches } from "../legend/Swatches";
 
@@ -26,11 +27,15 @@ let MARGIN: {
         left: 70 
     };
 
-type D3ScatterplotChartProps = {
+interface D3ScatterplotChartProps {
     height: number;
     data: { 
         x: number;
+        xScaleMin?: number | undefined;
+        xScaleMax?: number | undefined;
         y: number;
+        yScaleMin?: number | undefined;
+        yScaleMax?: number | undefined;
         markColorField: string;
         filterGender: string;
         seqn: number;
@@ -79,26 +84,32 @@ const D3ScatterplotChart = ({ height, data, markColorFieldLegendName, markColorS
     // @ts-expect-error
     const width = dms.width;
     
-    // Create the horizontal scale and its axis generator.
+    const xScaleMinValue:number = data[0]?.xScaleMin || Math.max(0.1, (d3.min(data, (d) => d.x) as number) - 1);
+    const xScaleMaxValue:number = data[0]?.xScaleMax || (d3.max(data, (d) => d.x) as number) + 5;
     const xScale = d3
-    .scaleLinear()
+    .scaleLog()
     .domain([
-        (d3.min(data, (d) => d.x) as number) - 1,
-        (d3.max(data, (d) => d.x) as number) + 5
+        xScaleMinValue, // Ensure the minimum value > 0
+        xScaleMaxValue
     ]) // data points for x
+    // .nice()
     .range([0, boundsWidth]); // axis x dimensions
 
     const xAxis = d3.axisBottom(xScale).tickSizeOuter(0);
 
-    // Create the vertical scale and its axis generator.
+    const yScaleMinValue:number = data[0]?.yScaleMin || Math.max(0.1, (d3.min(data, (d) => d.y) as number) - 1);
+    const yScaleMaxValue:number = data[0]?.yScaleMax || (d3.max(data, (d) => d.y) as number) + 5;
     const yScale = d3
-    .scaleLinear()
-    .domain([0, (d3.max(data, (d) => d.y) as number) + 5]) // data points for y
-    .nice()
+    .scaleLog()
+    .domain([
+        yScaleMinValue, // Ensure the minimum value > 0
+        yScaleMaxValue
+    ]) // data points for y
+    // .nice()
     .range([boundsHeight, 0]); // axis y dimensions
 
     const yAxis = d3.axisLeft(yScale);
-
+    
     // Build the shapes (dots)
     const allShapes = data.map((d, i) => {
 
@@ -110,7 +121,8 @@ const D3ScatterplotChart = ({ height, data, markColorFieldLegendName, markColorS
       return (
         <circle
           key={i}
-          r={5}
+          // @ts-ignore
+          r={CircleShape.radius}
           cx={xScale(d.x)}
           cy={yScale(d.y)}
           className={className}
@@ -118,7 +130,7 @@ const D3ScatterplotChart = ({ height, data, markColorFieldLegendName, markColorS
           fill={markColorScale(d.markColorField)}
           fillOpacity={0.6}
           onMouseOver={() => {
-            setHoveredGroup(d.markColorField);
+            // setHoveredGroup(d.markColorField);
             setHovered({
                 xPos: xScale(d.x),
                 yPos: yScale(d.y),
@@ -132,7 +144,7 @@ const D3ScatterplotChart = ({ height, data, markColorFieldLegendName, markColorS
               });
           }}
           onMouseLeave={() => { 
-            setHoveredGroup(null)
+            // setHoveredGroup(null)
             setHovered(null)
           }}
           onClick={(x) => {
@@ -145,7 +157,7 @@ const D3ScatterplotChart = ({ height, data, markColorFieldLegendName, markColorS
 
           }}
           data-seqn={d.seqn}
-        />
+        />        
       );
     });
 
