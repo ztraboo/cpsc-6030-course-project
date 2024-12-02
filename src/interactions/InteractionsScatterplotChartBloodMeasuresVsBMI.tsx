@@ -74,7 +74,7 @@ export function onScatterplotChartBloodMeasuresVsBMIClick(toggledPoint: boolean,
             const group = 
             svg
             .append("g")
-                .attr("transform", "translate(-21, -135)") // -70
+                .attr("transform", "translate(-21, -50)") // -70
                 .attr("overflow", "visible")
                 .attr("data-selected-path", "true");
 
