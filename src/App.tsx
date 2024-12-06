@@ -23,6 +23,9 @@ import { onDonutChartGenderSliceClick } from "./interactions/InteractionsDonutCh
 import { onScatterplotChartBloodMeasuresVsBMIClick } from "./interactions/InteractionsScatterplotChartBloodMeasuresVsBMI";
 import { onStackedBarChartAgeVsExerciseClickExerciseLevel, onStackedBarChartAgeVsExerciseClickAgeGroup } from "./interactions/InteractionsStackedBarChartAgeVsExercise";
 
+import Button from 'react-bootstrap/Button';
+import YouTube, { YouTubeProps } from 'react-youtube';
+
 // interface DataItemAgeVsExercise {
 //   Age: number;
 //   No: number;
@@ -37,6 +40,26 @@ interface Participant {
 }
 
 function App() {
+
+  const [showVideo, setShowVideo] = useState(false);
+
+  const handleButtonClick = () => {
+    setShowVideo(!showVideo);
+  };
+
+  const onPlayerReadyScreenRecording: YouTubeProps['onReady'] = (event) => {
+    // access to player in all event handlers via event.target
+    event.target.pauseVideo();
+  }
+
+  const optsScreenRecording: YouTubeProps['opts'] = {
+    height: '720',
+    width: '1280',
+    playerVars: {
+      // https://developers.google.com/youtube/player_parameters
+      autoplay: 1,
+    },
+  };
 
   const [participantCount, setParticipantCount] = useState(0);
 
@@ -344,24 +367,30 @@ function App() {
         {!isLoading && (
           <>
             <header className="App-header">
-                  <h1>
-                    <span className="thin">Lifestyle Habit</span> &nbsp;
-                    <span className="bold">Health Indicators</span>
-                  </h1>
-                  <div className="sub-heading">
-                    <p>
-                      The following dashboard illustrates the connections between lifestyle habits and health indicators. It reveals that individuals with higher BMIs tend to have elevated glucose and insulin levels, which may suggest an increased risk of diabetes. There is also a noticeable correlation between diabetes and cholesterol issues, emphasizing the need for a more integrated approach to health management. Data was sourced from the &nbsp;
-                      <a
-                        className="App-link"
-                        href="https://wwwn.cdc.gov/nchs/nhanes/continuousnhanes/default.aspx?BeginYear=2013"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        >NHANES CDC 2013-2014
-                      </a>
-                      &nbsp; site.
-                    </p>
-                  </div>
-                </header>
+                <h1>
+                  <span className="thin">Lifestyle Habit</span> &nbsp;
+                  <span className="bold">Health Indicators</span>
+                </h1>
+                <div className="sub-heading">
+                  <p>
+                    The following dashboard illustrates the connections between lifestyle habits and health indicators. It reveals that individuals with higher BMIs tend to have elevated glucose and insulin levels, which may suggest an increased risk of diabetes. There is also a noticeable correlation between diabetes and cholesterol issues, emphasizing the need for a more integrated approach to health management. Data was sourced from the &nbsp;
+                    <a
+                      className="App-link"
+                      href="https://wwwn.cdc.gov/nchs/nhanes/continuousnhanes/default.aspx?BeginYear=2013"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      >NHANES CDC 2013-2014
+                    </a>
+                    &nbsp; site.
+                  </p>
+                </div>
+                <Button variant="secondary" onClick={handleButtonClick} style={{"marginTop": "30px", "marginBottom": "40px"}}>
+                  {showVideo ? 'Hide Dashboard Video Overview' : 'Show Dashboard Video Overview'}
+                </Button>
+                {showVideo && (
+                  <YouTube videoId="qgHBsCbbWds" opts={optsScreenRecording} onReady={onPlayerReadyScreenRecording} />
+                )}
+            </header>
             <div className="dashboard">
               <div className="wrapper">
                 <main className="main">
