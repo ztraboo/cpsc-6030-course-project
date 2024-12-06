@@ -1,3 +1,10 @@
+# Project Overview
+The following dashboard illustrates the connections between lifestyle habits and health indicators. It reveals that individuals with higher BMIs tend to have elevated glucose and insulin levels, which may suggest an increased risk of diabetes. There is also a noticeable correlation between diabetes and cholesterol issues, emphasizing the need for a more integrated approach to health management. Data was sourced from the [NHANES CDC 2013-2014](https://wwwn.cdc.gov/nchs/nhanes/continuousnhanes/default.aspx?BeginYear=2013) site.
+
+<a href="http://www.youtube.com/watch?feature=player_embedded&v=qgHBsCbbWds" target="_blank">
+ <img src="http://img.youtube.com/vi/qgHBsCbbWds/maxresdefault.jpg" alt="Watch the video" width="100%" />
+</a>
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
