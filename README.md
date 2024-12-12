@@ -5,6 +5,23 @@ The following dashboard illustrates the connections between lifestyle habits and
  <img src="http://img.youtube.com/vi/qgHBsCbbWds/maxresdefault.jpg" alt="Watch the video" width="100%" />
 </a>
 
+# Project Process Book
+This document shows steps involved in development of our dashboard, including alternative designs we tried and insights we discovered. This will show detail in how we derived at our final product and each step will be described in detail to show the realm of possibilities that we explored. The document does not show ever detail but the important decisions that came along the way.
+
+Steps involved in constructing our dashboard: 
+- Overview of Motivation
+- Related Work
+- Questions That Our Dashboard Could Answer
+- Data Source Used And Preprocessing
+- Exploratory Data Analysis
+- Design Evolution
+- Implementation
+- Evaluation
+- References
+
+
+Click the [Project Process Book](./project-process-book.pdf) to view the document.
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
